@@ -698,20 +698,42 @@ function updateStats(devices){
 }
 
 // Uplink Health
+function isPrivateIp(ip){return ip&&(ip.startsWith('10.')||ip.startsWith('192.168.')||/^172\.(1[6-9]|2\d|3[01])\./.test(ip));}
+
 function renderUplinkTable(devices){
   const tbody=document.getElementById('uplinkTableBody');tbody.innerHTML='';
   if(!devices.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state"><div class="icon">📉</div>Load data first</div></td></tr>';document.getElementById('uplinkStats').innerHTML='';return;}
-  let h=0,dg=0,c=0;
+  let h=0,dg=0,c=0,nat=0;
   devices.forEach(d=>{
     const u=uplinkLossMap[d.serial]||{},w=wanIpMap[d.serial]||{};
     const net=d.networkId?(networkMap[d.networkId]||'—'):'—';
+    const wan1Private=isPrivateIp(w.wan1Ip);
+    const wan2Private=isPrivateIp(w.wan2Ip);
+    // If device is online but showing high loss on a private IP — likely double NAT artifact
+    const devOnline=(deviceStatusMap[d.serial]||{}).status==='online';
+    const wan1NatArtifact=devOnline&&wan1Private&&u.wan1Loss>=99;
+    const wan2NatArtifact=devOnline&&wan2Private&&u.wan2Loss>=99;
+    if(wan1NatArtifact||wan2NatArtifact)nat++;
     const maxL=Math.max(u.wan1Loss||0,u.wan2Loss||0);
-    if(maxL>=5)c++;else if(maxL>=1)dg++;else h++;
+    const isNatDevice=wan1NatArtifact||wan2NatArtifact;
+    if(isNatDevice)h++; // count as healthy since it's a measurement artifact
+    else if(maxL>=5)c++;else if(maxL>=1)dg++;else h++;
+
+    // Loss pill with NAT artifact override
+    const lossDisplay=(loss,ip,isNat)=>{
+      if(isNat)return`<span class="loss-pill warn" title="Device is behind NAT — loss reading unreliable">⚠ NAT</span>`;
+      return lossPill(loss);
+    };
+
+    const natNote=isNatDevice?`<br><span style="font-size:10px;color:var(--warn)">⚠ Behind NAT — loss data unreliable</span>`:'';
+
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="t-name">${d.name||'—'}</td><td class="t-net">${net}</td><td class="t-ip1">${w.wan1Ip||'—'}</td><td>${lossPill(u.wan1Loss)}</td><td>${latCell(u.wan1Lat)}</td><td class="t-ip2">${w.wan2Ip||'—'}</td><td>${lossPill(u.wan2Loss)}</td><td>${latCell(u.wan2Lat)}</td><td class="t-mac">${d.serial||'—'}</td>`;
+    tr.style.background=isNatDevice?'rgba(255,181,71,0.03)':'';
+    tr.innerHTML=`<td class="t-name">${d.name||'—'}${natNote}</td><td class="t-net">${net}</td><td class="t-ip1">${w.wan1Ip||'—'}${wan1Private?` <span style="font-size:10px;color:var(--warn)">private</span>`:''}  </td><td>${lossDisplay(u.wan1Loss,w.wan1Ip,wan1NatArtifact)}</td><td>${latCell(u.wan1Lat)}</td><td class="t-ip2">${w.wan2Ip||'—'}${wan2Private?` <span style="font-size:10px;color:var(--warn)">private</span>`:''}</td><td>${lossDisplay(u.wan2Loss,w.wan2Ip,wan2NatArtifact)}</td><td>${latCell(u.wan2Lat)}</td><td class="t-mac">${d.serial||'—'}</td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('uplinkStats').innerHTML=`<div class="stat-chip ok"><strong>${h}</strong> Healthy</div><div class="stat-chip warn"><strong>${dg}</strong> Degraded (1-5%)</div><div class="stat-chip bad"><strong>${c}</strong> Critical (5%+)</div>`;
+  const natChip=nat?`<div class="stat-chip warn"><strong>${nat}</strong> Behind NAT</div>`:'';
+  document.getElementById('uplinkStats').innerHTML=`<div class="stat-chip ok"><strong>${h}</strong> Healthy</div><div class="stat-chip warn"><strong>${dg}</strong> Degraded (1-5%)</div><div class="stat-chip bad"><strong>${c}</strong> Critical (5%+)</div>${natChip}`;
 }
 function filterUplink(){
   const q=document.getElementById('uplinkSearch').value.toLowerCase();
@@ -824,8 +846,8 @@ function renderChecklist(devices){
   checks.push({status:spareDown.length?'fail':'pass',icon:spareDown.length?'🔴':'✅',title:`${spareDown.length} HA spare unit${spareDown.length!==1?'s':''} offline`,desc:'An offline spare means there is no failover protection. The primary is running without a backup.',details:spareDown.map(p=>{const spa=devBySerial[p.spareSerial];return`${networkMap[p.networkId]||p.networkId} — Spare: ${spa?.name||p.spareSerial}`;})});
 
   // 7. Private IPs on WAN
-  const privateWan=devices.filter(d=>{const w=wanIpMap[d.serial]||{};return[w.wan1Ip,w.wan2Ip].some(ip=>ip&&(ip.startsWith('10.')||ip.startsWith('192.168.')||ip.startsWith('172.')));});
-  checks.push({status:privateWan.length?'warn':'pass',icon:privateWan.length?'🟡':'✅',title:`${privateWan.length} device${privateWan.length!==1?'s':''} with private IP on WAN interface`,desc:'Private WAN IPs indicate the MX is behind a NAT device. This can cause AutoVPN issues and double NAT.',details:privateWan.map(d=>{const w=wanIpMap[d.serial]||{};return`${d.name||d.serial} — WAN1: ${w.wan1Ip||'—'} WAN2: ${w.wan2Ip||'—'}`;})});
+  const privateWan=devices.filter(d=>{const w=wanIpMap[d.serial]||{};return[w.wan1Ip,w.wan2Ip].some(ip=>ip&&(ip.startsWith('10.')||ip.startsWith('192.168.')||/^172\.(1[6-9]|2\d|3[01])\./.test(ip)));});
+  checks.push({status:privateWan.length?'warn':'pass',icon:privateWan.length?'🟡':'✅',title:`${privateWan.length} device${privateWan.length!==1?'s':''} with private IP on WAN interface`,desc:'Private WAN IPs indicate the MX is behind a NAT device (double NAT). This can cause AutoVPN issues and unreliable uplink loss readings — 100% loss on a private WAN IP is likely a measurement artifact, not a real outage.',details:privateWan.map(d=>{const w=wanIpMap[d.serial]||{};return`${d.name||d.serial} — WAN1: ${w.wan1Ip||'—'} WAN2: ${w.wan2Ip||'—'}`;})});
 
   // 8. Duplicate public WAN IPs
   const ipToDevs={};
