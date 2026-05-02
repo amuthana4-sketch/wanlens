@@ -1,0 +1,8 @@
+{
+  "name": "wanlens",
+  "version": "1.0.0",
+  "description": "WAN Lens — Supplemental visibility for Cisco Meraki MX",
+  "engines": {
+    "node": ">=18"
+  }
+}

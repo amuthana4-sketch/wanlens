@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WAN Lens — Meraki WAN Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e14;--surface:#111722;--surface2:#1a2233;--border:#1e2d45;--accent:#00c6ff;--accent2:#0072ff;--success:#00e896;--warn:#ffb547;--danger:#ff4d6a;--text:#d8e4f0;--muted:#5a7a9a;--mono:'Share Tech Mono',monospace;--sans:'Barlow',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px;position:relative;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,198,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,198,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(0,114,255,0.12) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.container{position:relative;z-index:1;width:100%;max-width:1200px;}
+
+/* Header */
+header{text-align:center;margin-bottom:40px;}
+.logo-mark{display:inline-flex;align-items:center;gap:12px;margin-bottom:16px;}
+.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,198,255,0.5);position:relative;overflow:hidden;}
+.logo-icon::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);}
+.logo-icon svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.logo-text-wrap{text-align:left;}
+.logo-name{font-size:28px;font-weight:700;background:linear-gradient(120deg,#fff 40%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.logo-tagline{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.subtitle{color:var(--muted);font-size:14px;font-weight:300;letter-spacing:0.5px;}
+.powered-by{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;}
+.powered-by span{color:var(--accent);}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px;}
+.tab{flex:1;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;white-space:nowrap;}
+.tab.active{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;box-shadow:0 2px 12px rgba(0,114,255,0.3);}
+.tab-content{display:none;}.tab-content.active{display:block;}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 4px 40px rgba(0,0,0,0.4);}
+.card-title{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Form */
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+input,select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:15px;padding:12px 16px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;appearance:none;}
+input::placeholder{color:var(--muted);opacity:0.6;}
+input:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,114,255,0.15);}
+.hint{font-size:11px;color:var(--muted);font-family:var(--mono);min-height:16px;}
+.hint.err{color:var(--danger);}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+select{cursor:pointer;}select option{background:var(--surface2);}
+.btn{width:100%;padding:14px 24px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,opacity 0.15s;box-shadow:0 4px 20px rgba(0,114,255,0.35);text-transform:uppercase;}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,114,255,0.5);}
+.btn:active:not(:disabled){transform:translateY(0);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.api-row{display:flex;gap:10px;}
+.api-row input{flex:1;}
+.fetch-btn{padding:12px 20px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:8px;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s;flex-shrink:0;}
+.fetch-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* Status */
+.status-msg{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;animation:fadeIn 0.3s ease;}
+.status-msg.loading{background:rgba(0,198,255,0.08);border:1px solid rgba(0,198,255,0.2);color:var(--accent);}
+.status-msg.error{background:rgba(255,77,106,0.08);border:1px solid rgba(255,77,106,0.2);color:var(--danger);}
+.status-msg.success{background:rgba(0,232,150,0.08);border:1px solid rgba(0,232,150,0.2);color:var(--success);}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,198,255,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.progress-wrap{background:var(--surface2);border-radius:20px;height:4px;overflow:hidden;margin-top:8px;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:20px;transition:width 0.3s ease;width:0%;}
+.progress-label{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:6px;}
+
+/* Org selector — simplified single select */
+.org-section{margin-top:16px;}
+
+/* Controls */
+.controls-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.search-wrap{flex:1;min-width:200px;position:relative;}
+.search-wrap input{padding-left:36px;font-size:13px;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.filter-select{width:auto;min-width:180px;padding:10px 32px 10px 12px;font-size:13px;}
+.action-btn{padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;white-space:nowrap;}
+.action-btn:hover{border-color:var(--accent);color:var(--accent);}
+.auto-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.auto-wrap select{width:auto;padding:8px 28px 8px 10px;font-size:12px;}
+
+/* Stats */
+.stats-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.stat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:6px;}
+.stat-chip strong{font-family:var(--mono);color:var(--accent);font-size:16px;}
+.stat-chip.ok strong{color:var(--success);}
+.stat-chip.bad strong{color:var(--danger);}
+.stat-chip.warn strong{color:var(--warn);}
+
+/* Table */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+th.c-wan1{color:var(--accent)!important;}th.c-wan2{color:#6ab0ff!important;}th.c-wan3{color:var(--warn)!important;}
+th.c-ip1{color:#7dffcb!important;}th.c-ip2{color:#a8d4ff!important;}
+th.c-geo{color:#d4a8ff!important;}th.c-fw{color:#ffd4a8!important;}
+th.c-loss{color:var(--danger)!important;}th.c-lat{color:var(--warn)!important;}
+th.c-ha{color:#ffaad4!important;}
+tbody tr{border-bottom:1px solid rgba(30,45,69,0.6);transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(0,198,255,0.03);}
+td{padding:8px 10px;font-family:var(--mono);font-size:12px;vertical-align:middle;}
+td.t-name{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;}
+td.t-model span{background:rgba(0,114,255,0.15);border:1px solid rgba(0,114,255,0.25);color:#6ab0ff;padding:2px 7px;border-radius:20px;font-size:11px;font-family:var(--sans);font-weight:600;}
+td.t-net{color:var(--muted);font-size:11px;font-family:var(--sans);}
+td.t-mac{color:var(--text);letter-spacing:0.3px;}
+td.t-w1m{color:var(--accent);}td.t-w2m{color:#6ab0ff;}td.t-w3m{color:var(--warn);}
+td.t-na{color:var(--muted);font-size:11px;}
+td.t-ip1{color:#7dffcb;}td.t-ip2{color:#a8d4ff;}
+td.t-geo{color:#d4a8ff;font-size:11px;}td.t-fw{color:#ffd4a8;font-size:11px;}
+td.t-lastseen{color:var(--muted);font-size:11px;}
+.ddot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;}
+.ddot.online{background:var(--success);box-shadow:0 0 5px var(--success);}
+.ddot.offline{background:var(--danger);}
+.ddot.alerting{background:var(--warn);box-shadow:0 0 5px var(--warn);}
+.ddot.unknown,.ddot.dormant{background:var(--muted);}
+.uplink-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;font-family:var(--sans);font-weight:700;margin-left:4px;}
+.uplink-badge.primary{background:rgba(0,232,150,0.15);color:var(--success);border:1px solid rgba(0,232,150,0.3);}
+.uplink-badge.failover{background:rgba(255,181,71,0.15);color:var(--warn);border:1px solid rgba(255,181,71,0.3);}
+.ha-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;font-family:var(--sans);font-weight:700;background:rgba(255,170,212,0.15);color:#ffaad4;border:1px solid rgba(255,170,212,0.3);margin-left:4px;}
+
+/* Loss pill */
+.loss-pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-family:var(--mono);font-weight:600;}
+.loss-pill.good{background:rgba(0,232,150,0.1);color:var(--success);border:1px solid rgba(0,232,150,0.2);}
+.loss-pill.warn{background:rgba(255,181,71,0.1);color:var(--warn);border:1px solid rgba(255,181,71,0.2);}
+.loss-pill.bad{background:rgba(255,77,106,0.1);color:var(--danger);border:1px solid rgba(255,77,106,0.2);}
+.loss-pill.na{background:rgba(90,122,154,0.1);color:var(--muted);border:1px solid rgba(90,122,154,0.2);}
+
+/* ISP */
+.isp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.isp-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.isp-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.isp-name{font-size:14px;font-weight:700;color:var(--text);}
+.isp-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.isp-count{font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0;}
+.isp-avg{font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:10px;}
+.isp-avg span{color:var(--accent);}
+.isp-sites{display:flex;flex-wrap:wrap;gap:4px;}
+.isp-site{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;gap:4px;}
+
+/* Support checklist */
+.check-list{display:flex;flex-direction:column;gap:12px;}
+.check-item{padding:16px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);display:flex;gap:14px;align-items:flex-start;}
+.check-item.pass{border-color:rgba(0,232,150,0.25);background:rgba(0,232,150,0.03);}
+.check-item.fail{border-color:rgba(255,77,106,0.25);background:rgba(255,77,106,0.03);}
+.check-item.warn{border-color:rgba(255,181,71,0.25);background:rgba(255,181,71,0.03);}
+.check-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.check-body{flex:1;}
+.check-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.check-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.check-detail{margin-top:8px;font-size:11px;font-family:var(--mono);color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;max-height:120px;overflow-y:auto;}
+.check-detail div{padding:2px 0;border-bottom:1px solid rgba(30,45,69,0.4);}
+.check-detail div:last-child{border-bottom:none;}
+
+/* Snapshot */
+.snap-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.meta-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.meta-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px;}
+.meta-value{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);}
+.meta-value.ok{color:var(--success);}
+.meta-value.bad{color:var(--danger);}
+.meta-value.warn{color:var(--warn);}
+.snap-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.snap-btn{padding:12px 24px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:transform 0.15s;box-shadow:0 4px 20px rgba(0,114,255,0.3);}
+.snap-btn:hover{transform:translateY(-1px);}
+.snap-btn.sec{background:var(--surface2);border:1px solid var(--border);color:var(--text);box-shadow:none;}
+.snap-includes{font-size:12px;color:var(--muted);line-height:2;}
+
+/* Manual */
+.result-grid{display:grid;gap:10px;}
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;overflow:hidden;}
+.result-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.result-item.wan1::before{background:var(--accent);}
+.result-item.wan2::before{background:var(--accent2);}
+.result-item.wan3::before{background:var(--warn);}
+.result-item.na{opacity:0.4;}
+.result-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);min-width:55px;}
+.result-mac{font-family:var(--mono);font-size:16px;flex:1;text-align:center;}
+.offset-badge{font-family:var(--mono);font-size:11px;background:rgba(0,198,255,0.1);border:1px solid rgba(0,198,255,0.2);color:var(--accent);padding:2px 9px;border-radius:20px;}
+.result-item.wan2 .offset-badge{background:rgba(0,114,255,0.1);border-color:rgba(0,114,255,0.2);color:#6ab0ff;}
+.result-item.wan3 .offset-badge{background:rgba(255,181,71,0.1);border-color:rgba(255,181,71,0.2);color:var(--warn);}
+.copy-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:12px;padding:3px 8px;transition:color 0.15s,border-color 0.15s;}
+.copy-btn:hover{color:var(--text);border-color:var(--muted);}
+.copy-btn.copied{color:var(--success);border-color:var(--success);}
+.base-echo{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:14px;padding:8px 14px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid var(--border);}
+.base-echo span{color:var(--text);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
+.full{grid-column:1/-1;}
+.results-section{display:none;animation:fadeIn 0.3s ease;}
+.results-section.visible{display:block;}
+
+/* Misc */
+.copy-c{cursor:pointer;color:var(--muted);transition:color 0.15s;user-select:none;font-size:11px;margin-left:3px;}
+.copy-c:hover{color:var(--accent);}.copy-c.copied{color:var(--success);}
+.ip-cell{display:flex;align-items:center;gap:4px;}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.sdot.up{background:var(--success);box-shadow:0 0 4px var(--success);}
+.sdot.down{background:var(--danger);}.sdot.uk{background:var(--muted);}
+.export-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.export-btn{padding:9px 18px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;}
+.export-btn:hover{border-color:var(--accent);color:var(--accent);}
+.last-updated{font-size:11px;color:var(--muted);font-family:var(--mono);margin-left:auto;}
+.security-note{font-size:12px;color:var(--muted);padding:10px 14px;background:rgba(0,232,150,0.05);border:1px solid rgba(0,232,150,0.15);border-radius:8px;margin-bottom:16px;line-height:1.6;}
+.security-note strong{color:var(--success);}
+.notice{font-size:12px;color:var(--muted);padding:10px 14px;background:rgba(0,114,255,0.05);border:1px solid rgba(0,114,255,0.15);border-radius:8px;margin-bottom:16px;line-height:1.6;}
+.notice strong{color:var(--accent);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
+.empty-state .icon{font-size:32px;margin-bottom:10px;}
+footer{text-align:center;margin-top:40px;font-size:12px;color:var(--muted);line-height:1.8;}
+footer a{color:var(--accent);text-decoration:none;}
+.geo-flag{font-size:14px;margin-right:3px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/></svg>
+      </div>
+      <div class="logo-text-wrap">
+        <div class="logo-name">WAN Lens</div>
+        <div class="logo-tagline">Network Intelligence</div>
+      </div>
+    </div>
+    <p class="subtitle">Supplemental visibility for Cisco Meraki MX — filling the gaps the Dashboard doesn't show</p>
+    <div class="powered-by">Powered by <span>Cisco Meraki API</span></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('manual')">⌨️ MAC Calculator</button>
+    <button class="tab" onclick="switchTab('api')">📡 WAN Overview</button>
+    <button class="tab" onclick="switchTab('uplink')">📉 Uplink Health</button>
+    <button class="tab" onclick="switchTab('isp')">🌐 ISP View</button>
+    <button class="tab" onclick="switchTab('ha')">🔁 HA Pairs</button>
+    <button class="tab" onclick="switchTab('checklist')">✅ Support Checks</button>
+    <button class="tab" onclick="switchTab('snapshot')">📋 Snapshot</button>
+  </div>
+
+  <!-- 1. MAC CALCULATOR -->
+  <div class="tab-content active" id="tab-manual">
+    <div class="card">
+      <div class="card-title">WAN MAC Calculator — No API Key Required</div>
+      <div class="form-row">
+        <div class="field full">
+          <label>Base MAC Address</label>
+          <input type="text" id="macInput" placeholder="AA:BB:CC:06:25:E8" maxlength="17" autocomplete="off" spellcheck="false">
+          <div class="hint" id="macHint">Enter the MAC address printed on the device sticker or shown in Dashboard</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field full">
+          <label>Device Model</label>
+          <div class="select-wrap">
+            <select id="modelSelect">
+              <option value="" disabled selected>Select MX / Z-Series model…</option>
+              <optgroup label="MX Series">
+                <option>MX60</option><option>MX60W</option><option>MX64</option><option>MX64W</option>
+                <option>MX65</option><option>MX65W</option><option>MX67</option><option>MX67W</option>
+                <option>MX67C</option><option>MX68</option><option>MX68W</option><option>MX68CW</option>
+                <option>MX75</option><option>MX80</option><option>MX84</option><option>MX85</option>
+                <option>MX90</option><option>MX95</option><option>MX100</option><option>MX105</option>
+                <option>MX250</option><option>MX400</option><option>MX450</option><option>MX600</option>
+              </optgroup>
+              <optgroup label="Z-Series">
+                <option value="Z1">Z1</option><option value="Z3">Z3 / Z3C</option><option value="Z4">Z4 / Z4C</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+      </div>
+      <button class="btn" onclick="calculateManual()">Calculate WAN MACs</button>
+    </div>
+    <div class="results-section" id="manualResults">
+      <div class="card">
+        <div class="card-title">Calculated WAN Interfaces</div>
+        <div class="base-echo">Base MAC: <span id="baseDisplay">—</span></div>
+        <div class="result-grid" id="resultGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. WAN OVERVIEW -->
+  <div class="tab-content" id="tab-api">
+    <div class="card">
+      <div class="card-title">Meraki API Connection</div>
+      <div class="security-note"><strong>🔒 Privacy:</strong> Your API key goes directly to api.meraki.com only. Nothing is stored or logged by WAN Lens. Geolocation uses ip-api.com.</div>
+      <div class="field">
+        <label>Meraki API Key</label>
+        <div class="api-row">
+          <input type="password" id="apiKey" placeholder="Enter your Meraki Dashboard API key" autocomplete="off" spellcheck="false">
+          <button class="fetch-btn" id="fetchOrgsBtn" onclick="fetchOrganizations()">Connect</button>
+        </div>
+        <div class="hint">Dashboard → My Profile → API Access</div>
+      </div>
+      <div id="apiStatus"></div>
+      <div id="progressSection" style="display:none">
+        <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+      </div>
+      <div id="orgSection" style="display:none" class="org-section">
+        <div class="field">
+          <label>Organization</label>
+          <div class="select-wrap">
+            <select id="orgSelect" style="font-size:13px">
+              <option value="" disabled selected>Select organization…</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" onclick="loadOrg()">Load Organization</button>
+      </div>
+    </div>
+
+    <div id="apiResults" style="display:none">
+      <div class="card">
+        <div class="card-title">WAN Overview <span class="last-updated" id="lastUpdated"></span></div>
+        <div class="stats-bar" id="statsBar"></div>
+        <div class="controls-bar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search name, IP, MAC, serial, location, firmware…" oninput="filterTable()">
+          </div>
+          <div class="select-wrap">
+            <select id="networkFilter" class="filter-select" onchange="filterTable()">
+              <option value="">All Networks</option>
+            </select>
+          </div>
+          <button class="action-btn" onclick="refreshData()">↻ Refresh</button>
+          <div class="auto-wrap">Auto: <div class="select-wrap"><select id="autoRefreshSelect" onchange="setAutoRefresh()"><option value="0">Off</option><option value="60">1m</option><option value="300">5m</option><option value="600">10m</option></select></div></div>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width:1200px">
+            <thead><tr>
+              <th>Status</th><th>Device</th><th>Model</th><th>Network</th>
+              <th>Base MAC</th><th class="c-wan1">WAN 1 MAC</th><th class="c-wan2">WAN 2 MAC</th><th class="c-wan3">WAN 3 MAC</th>
+              <th class="c-ip1">WAN 1 IP</th><th class="c-ip2">WAN 2 IP</th>
+              <th class="c-geo">Location / ISP</th><th class="c-fw">Firmware</th><th>Last Seen</th><th>Serial</th>
+            </tr></thead>
+            <tbody id="deviceTableBody"></tbody>
+          </table>
+        </div>
+        <div class="export-row">
+          <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="export-btn" onclick="copyAll()">📋 Copy All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. UPLINK HEALTH -->
+  <div class="tab-content" id="tab-uplink">
+    <div class="card">
+      <div class="notice"><strong>ℹ️</strong> Org-wide uplink packet loss and latency — not visible as a single view in the Meraki Dashboard. Load data from WAN Overview first.</div>
+      <div class="card-title">Uplink Packet Loss & Latency <span class="last-updated" id="uplinkUpdated"></span></div>
+      <div class="stats-bar" id="uplinkStats"></div>
+      <div class="controls-bar">
+        <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="uplinkSearch" placeholder="Search device, network, IP…" oninput="filterUplink()"></div>
+      </div>
+      <div class="table-wrap">
+        <table style="min-width:800px">
+          <thead><tr>
+            <th>Device</th><th>Network</th>
+            <th class="c-ip1">WAN 1 IP</th><th class="c-loss">WAN 1 Loss</th><th class="c-lat">WAN 1 Latency</th>
+            <th class="c-ip2">WAN 2 IP</th><th class="c-loss">WAN 2 Loss</th><th class="c-lat">WAN 2 Latency</th>
+            <th>Serial</th>
+          </tr></thead>
+          <tbody id="uplinkTableBody"></tbody>
+        </table>
+      </div>
+      <div class="export-row"><button class="export-btn" onclick="exportUplinkCSV()">⬇ Export CSV</button></div>
+    </div>
+  </div>
+
+  <!-- 4. ISP VIEW -->
+  <div class="tab-content" id="tab-isp">
+    <div class="card">
+      <div class="notice"><strong>ℹ️</strong> Sites grouped by ISP — makes ISP-wide outages immediately visible. Load data from WAN Overview first.</div>
+      <div class="card-title">ISP Grouping View</div>
+      <div class="isp-grid" id="ispGrid">
+        <div class="empty-state"><div class="icon">🌐</div>Load data from WAN Overview first</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. HA PAIRS -->
+  <div class="tab-content" id="tab-ha">
+    <div class="card">
+      <div class="notice"><strong>ℹ️</strong> HA warm spare pairs with model and firmware validation. Requires identical models — different models and different regional variants are not supported. Load data from WAN Overview first.</div>
+      <div class="card-title">HA Warm Spare Pairs <span class="last-updated" id="haUpdated"></span></div>
+      <div class="stats-bar" id="haStats"></div>
+      <div class="table-wrap">
+        <table style="min-width:1000px">
+          <thead><tr>
+            <th>Network</th>
+            <th class="c-ha">Primary Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
+            <th class="c-ha">Spare Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
+            <th>Model</th><th>Firmware</th>
+          </tr></thead>
+          <tbody id="haTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. SUPPORT CHECKS -->
+  <div class="tab-content" id="tab-checklist">
+    <div class="card">
+      <div class="notice"><strong>ℹ️</strong> Automated checks surfacing issues that are not easily visible in the Dashboard. Load data from WAN Overview first.</div>
+      <div class="card-title">Support Checklist</div>
+      <div class="check-list" id="checkList">
+        <div class="empty-state"><div class="icon">✅</div>Load data from WAN Overview first</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. SNAPSHOT -->
+  <div class="tab-content" id="tab-snapshot">
+    <div class="card">
+      <div class="notice"><strong>ℹ️</strong> Share this snapshot with Meraki Support without sharing your API key. Contains all device data, health status, HA pairs, and checklist findings — never your API key.</div>
+      <div class="card-title">Support Snapshot</div>
+      <div id="snapEmpty" class="empty-state" style="padding:20px 0"><div class="icon">📋</div>Load data from WAN Overview first</div>
+      <div id="snapContent" style="display:none">
+        <div class="snap-meta" id="snapMeta"></div>
+        <div class="snap-btns">
+          <button class="snap-btn" onclick="downloadSnapshot()">⬇ Download JSON</button>
+          <button class="snap-btn sec" onclick="copySnapshot()">📋 Copy to Clipboard</button>
+        </div>
+        <div class="snap-includes">
+          ✅ Device names, models, serials &nbsp;&nbsp; ✅ Base MAC + calculated WAN MACs<br>
+          ✅ WAN IP addresses + uplink status &nbsp;&nbsp; ✅ Firmware versions<br>
+          ✅ Device online/offline status &nbsp;&nbsp; ✅ Uplink packet loss and latency<br>
+          ✅ HA pair validation results &nbsp;&nbsp; ✅ Support checklist findings<br>
+          ❌ API key — never included &nbsp;&nbsp; ❌ Client devices &nbsp;&nbsp; ❌ Firewall rules
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <strong style="color:var(--accent)">WAN Lens</strong> — Supplemental visibility for Cisco Meraki MX<br>
+    MAC offsets from <a href="https://documentation.meraki.com/SASE_and_SD-WAN/MX/Operate_and_Maintain/How-Tos/Calculating_MX_WAN_MAC_Addresses" target="_blank">Cisco Meraki Docs</a> ·
+    Geolocation by <a href="https://ip-api.com" target="_blank">ip-api.com</a> ·
+    No data stored or transmitted through this server
+  </footer>
+</div>
+
+<script>
+const OFFSETS={MX60:{wan1:5,wan2:4,wan3:null},MX60W:{wan1:5,wan2:4,wan3:null},MX64:{wan1:5,wan2:4,wan3:null},MX64W:{wan1:5,wan2:4,wan3:null},MX65:{wan1:1,wan2:2,wan3:null},MX65W:{wan1:1,wan2:2,wan3:null},MX67:{wan1:1,wan2:2,wan3:null},MX67W:{wan1:1,wan2:2,wan3:null},MX67C:{wan1:1,wan2:2,wan3:null},MX68:{wan1:1,wan2:2,wan3:null},MX68W:{wan1:1,wan2:2,wan3:null},MX68CW:{wan1:1,wan2:2,wan3:null},MX75:{wan1:1,wan2:2,wan3:3},MX80:{wan1:1,wan2:2,wan3:null},MX84:{wan1:1,wan2:2,wan3:null},MX85:{wan1:1,wan2:2,wan3:4},MX90:{wan1:1,wan2:2,wan3:null},MX95:{wan1:1,wan2:2,wan3:4},MX100:{wan1:1,wan2:2,wan3:null},MX105:{wan1:1,wan2:2,wan3:4},MX250:{wan1:1,wan2:2,wan3:null},MX400:{wan1:2,wan2:4,wan3:null},MX450:{wan1:1,wan2:2,wan3:null},MX600:{wan1:2,wan2:4,wan3:null},Z1:{wan1:5,wan2:null,wan3:null},Z3:{wan1:1,wan2:null,wan3:null},Z4:{wan1:1,wan2:null,wan3:null}};
+const MX_MODELS=new Set(Object.keys(OFFSETS));
+let allDevices=[],networkMap={},wanIpMap={},geoCache={},deviceStatusMap={},orgMap={},uplinkLossMap={},haPairs=[],autoRefreshTimer=null,savedKey='',savedOrgId='';
+
+function nMAC(r){if(!r)return null;const c=r.replace(/[^0-9a-fA-F]/g,'');if(c.length!==12)return null;const p=[];for(let i=0;i<12;i+=2)p.push(c.substr(i,2).toUpperCase());return p.join(':');}
+function addOff(mac,o){const b=mac.split(':').map(x=>parseInt(x,16));let v=(b[3]<<16)|(b[4]<<8)|b[5];v=(v+o)&0xFFFFFF;b[3]=(v>>16)&0xFF;b[4]=(v>>8)&0xFF;b[5]=v&0xFF;return b.map(x=>x.toString(16).padStart(2,'0').toUpperCase()).join(':');}
+function getMK(m){if(!m)return null;const u=m.toUpperCase();if(MX_MODELS.has(u))return u;for(const k of MX_MODELS)if(u.startsWith(k))return k;return null;}
+function baseModel(m){return(m||'').replace(/[-](WW|NA|EU|AU|JP|CN|ROW|FCC|ETSI)$/i,'').toUpperCase();}
+
+const TAB_IDS=['manual','api','uplink','isp','ha','checklist','snapshot'];
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((x,i)=>x.classList.toggle('active',TAB_IDS[i]===t));
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+}
+
+// Manual calculator
+const macInput=document.getElementById('macInput');
+macInput.addEventListener('input',function(){
+  const n=nMAC(this.value),h=document.getElementById('macHint');
+  if(!this.value){h.textContent='Enter the MAC address printed on the device sticker or shown in Dashboard';h.className='hint';h.style.color='';return;}
+  if(n){h.textContent='✓ '+n;h.style.color='var(--success)';h.className='hint';}
+  else{h.textContent='✗ Invalid MAC format';h.className='hint err';h.style.color='';}
+});
+function calculateManual(){
+  const mac=nMAC(macInput.value.trim()),mk=getMK(document.getElementById('modelSelect').value);
+  if(!mac||!mk)return;
+  const off=OFFSETS[mk];
+  document.getElementById('baseDisplay').textContent=mac;
+  const grid=document.getElementById('resultGrid');grid.innerHTML='';
+  [{key:'wan1',label:'WAN 1',cls:'wan1'},{key:'wan2',label:'WAN 2',cls:'wan2'},{key:'wan3',label:'WAN 3',cls:'wan3'}].forEach(w=>{
+    const o=off[w.key],na=o===null,mr=na?'N/A':addOff(mac,o);
+    const d=document.createElement('div');d.className=`result-item ${na?'na':w.cls}`;
+    d.innerHTML=`<div class="result-label">${w.label}</div><div class="result-mac">${mr}</div>${!na?`<span class="offset-badge">X+0x${o.toString(16).toUpperCase()}</span><button class="copy-btn" onclick="copyText(this,'${mr}')">Copy</button>`:''}`;
+    grid.appendChild(d);
+  });
+  const r=document.getElementById('manualResults');r.classList.add('visible');r.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+macInput.addEventListener('keydown',e=>{if(e.key==='Enter')calculateManual();});
+
+// API helpers
+function setStatus(msg,type){const el=document.getElementById('apiStatus');if(!msg){el.innerHTML='';return;}el.innerHTML=`<div class="status-msg ${type}">${type==='loading'?'<div class="spinner"></div>':''}<span>${msg}</span></div>`;}
+function setProgress(pct,label){const s=document.getElementById('progressSection');if(pct===null){s.style.display='none';return;}s.style.display='block';document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressLabel').textContent=label;}
+async function apiGet(key,path){
+  // Route through Netlify proxy to avoid CORS restrictions
+  const url=`/api${path}`;
+  const r=await fetch(url,{headers:{'x-meraki-key':key}});
+  if(!r.ok){
+    let msg=`API error ${r.status}`;
+    try{const e=await r.json();if(e.errors)msg=e.errors.join(', ');}catch(x){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+async function geoLookup(ips){
+  const tf=ips.filter(ip=>ip&&!geoCache[ip]);if(!tf.length)return;
+  const batches=[];for(let i=0;i<tf.length;i+=100)batches.push(tf.slice(i,i+100));
+  for(const batch of batches){
+    try{
+      // Try https first, fall back silently if blocked
+      const r=await fetch('https://ip-api.com/batch?fields=status,country,countryCode,city,isp,query',{method:'POST',body:JSON.stringify(batch.map(ip=>({query:ip})))});
+      const d=await r.json();
+      d.forEach(x=>{if(x.status==='success')geoCache[x.query]={country:x.country,countryCode:x.countryCode,city:x.city,isp:x.isp};});
+    }catch(e){
+      // Geo lookup failed silently — table still works without location data
+      console.warn('Geolocation unavailable:',e.message);
+    }
+  }
+}
+function flag(code){if(!code)return '';const o=0x1F1E6;return String.fromCodePoint(o+code.charCodeAt(0)-65)+String.fromCodePoint(o+code.charCodeAt(1)-65);}
+function relTime(ts){if(!ts)return '—';const d=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(d<60)return`${d}s ago`;if(d<3600)return`${Math.floor(d/60)}m ago`;if(d<86400)return`${Math.floor(d/3600)}h ago`;return`${Math.floor(d/86400)}d ago`;}
+function lossPill(v){if(v===null||v===undefined)return`<span class="loss-pill na">—</span>`;const p=parseFloat(v).toFixed(1),cls=v<1?'good':v<5?'warn':'bad';return`<span class="loss-pill ${cls}">${p}%</span>`;}
+function latCell(ms){if(ms===null||ms===undefined)return'—';const cls=ms<50?'color:var(--success)':ms<150?'color:var(--warn)':'color:var(--danger)';return`<span style="${cls};font-family:var(--mono)">${Math.round(ms)}ms</span>`;}
+
+async function fetchOrganizations(){
+  const key=document.getElementById('apiKey').value.trim();if(!key)return;
+  savedKey=key;
+  document.getElementById('fetchOrgsBtn').disabled=true;
+  setStatus('Connecting to Meraki API…','loading');
+  try{
+    const orgs=await apiGet(key,'/organizations');
+    if(!orgs.length)throw new Error('No organizations found');
+    orgMap={};orgs.forEach(o=>orgMap[o.id]=o.name);
+    const sel=document.getElementById('orgSelect');
+    sel.innerHTML='<option value="" disabled selected>Select organization…</option>';
+    orgs.forEach(o=>{const op=document.createElement('option');op.value=o.id;op.textContent=o.name;sel.appendChild(op);});
+    document.getElementById('orgSection').style.display='block';
+    setStatus(`✓ Connected — ${orgs.length} organization${orgs.length>1?'s':''} found`,'success');
+    if(orgs.length===1){sel.value=orgs[0].id;}
+  }catch(e){setStatus(e.message.includes('401')?'Invalid API key — check and try again':e.message,'error');}
+  finally{document.getElementById('fetchOrgsBtn').disabled=false;}
+}
+
+async function loadOrg(){
+  const orgId=document.getElementById('orgSelect').value;
+  if(!orgId){setStatus('Please select an organization','error');return;}
+  savedOrgId=orgId;
+  await loadData(savedKey,orgId);
+}
+
+async function refreshData(){
+  if(!savedKey||!savedOrgId)return;
+  const btn=document.querySelector('.action-btn');
+  btn.textContent='↻ Refreshing…';btn.disabled=true;
+  await loadData(savedKey,savedOrgId,true);
+  btn.textContent='↻ Refresh';btn.disabled=false;
+}
+function setAutoRefresh(){clearInterval(autoRefreshTimer);const s=parseInt(document.getElementById('autoRefreshSelect').value);if(s>0)autoRefreshTimer=setInterval(refreshData,s*1000);}
+
+async function loadData(key,orgId,silent=false){
+  if(!silent){setStatus('Fetching devices…','loading');setProgress(10,'Fetching devices and networks…');document.getElementById('apiResults').style.display='none';}
+  wanIpMap={};deviceStatusMap={};uplinkLossMap={};haPairs=[];
+  try{
+    setProgress(20,'Fetching all data…');
+    const [devs,nets,ups,stats,loss,warmSpare]=await Promise.allSettled([
+      apiGet(key,`/organizations/${orgId}/devices`),
+      apiGet(key,`/organizations/${orgId}/networks`),
+      apiGet(key,`/organizations/${orgId}/appliance/uplink/statuses`),
+      apiGet(key,`/organizations/${orgId}/devices/statuses`),
+      apiGet(key,`/organizations/${orgId}/devices/uplinksLossAndLatency?timespan=300`),
+      apiGet(key,`/organizations/${orgId}/appliance/vpn/statuses`)
+    ]);
+    setProgress(60,'Processing…');
+    networkMap={};
+    if(nets.status==='fulfilled')nets.value.forEach(n=>{networkMap[n.id]=n.name;});
+    if(ups.status==='fulfilled')ups.value.forEach(d=>{
+      if(!d.serial)return;
+      const e={wan1Ip:null,wan2Ip:null,wan1Status:null,wan2Status:null,wan1Role:null,wan2Role:null};
+      (d.uplinks||[]).forEach(u=>{
+        if(u.interface==='wan1'){e.wan1Ip=u.ip||null;e.wan1Status=u.status||null;}
+        if(u.interface==='wan2'){e.wan2Ip=u.ip||null;e.wan2Status=u.status||null;}
+      });
+      if(d.activeInterface){e.wan1Role=d.activeInterface==='wan1'?'primary':'failover';e.wan2Role=d.activeInterface==='wan2'?'primary':'failover';}
+      wanIpMap[d.serial]=e;
+    });
+    if(stats.status==='fulfilled')stats.value.forEach(d=>{if(d.serial)deviceStatusMap[d.serial]={status:d.status,lastReportedAt:d.lastReportedAt};});
+    if(loss.status==='fulfilled')loss.value.forEach(d=>{
+      if(!d.serial)return;
+      if(!uplinkLossMap[d.serial])uplinkLossMap[d.serial]={wan1Loss:null,wan1Lat:null,wan2Loss:null,wan2Lat:null};
+      const ts=d.timeSeries||[];if(!ts.length)return;
+      const rec=ts.slice(-5);
+      const avgL=rec.reduce((s,x)=>s+(x.lossPercent||0),0)/rec.length;
+      const avgLat=rec.reduce((s,x)=>s+(x.latencyMs||0),0)/rec.length;
+      if(d.uplink==='wan1'){uplinkLossMap[d.serial].wan1Loss=avgL;uplinkLossMap[d.serial].wan1Lat=avgLat;}
+      if(d.uplink==='wan2'){uplinkLossMap[d.serial].wan2Loss=avgL;uplinkLossMap[d.serial].wan2Lat=avgLat;}
+    });
+    // HA detection via warm spare statuses
+    if(warmSpare.status==='fulfilled')warmSpare.value.forEach(ws=>{
+      if(ws.enabled&&ws.primarySerial&&ws.spareSerial){
+        haPairs.push({networkId:ws.networkId,primarySerial:ws.primarySerial,spareSerial:ws.spareSerial});
+      }
+    });
+    setProgress(75,'Geolocating WAN IPs…');
+    const allDevs=devs.status==='fulfilled'?devs.value:[];
+    const mxDevs=allDevs.filter(d=>getMK(d.model)!==null);
+    if(!mxDevs.length){setStatus('No MX or Z-Series devices found','error');setProgress(null);return;}
+    const pubIps=[...new Set(mxDevs.flatMap(d=>{const w=wanIpMap[d.serial]||{};return[w.wan1Ip,w.wan2Ip].filter(ip=>ip&&!ip.startsWith('10.')&&!ip.startsWith('192.168.')&&!ip.startsWith('172.'));}))];
+    if(pubIps.length)await geoLookup(pubIps);
+    setProgress(95,'Rendering…');
+    allDevices=mxDevs;
+    const now=new Date().toLocaleTimeString();
+    if(!silent)setStatus(`✓ ${mxDevs.length} devices · ${pubIps.length} IPs geolocated · ${haPairs.length} HA pairs`,'success');
+    populateNetworkFilter();
+    renderTable(allDevices);
+    renderUplinkTable(allDevices);
+    renderIspView(allDevices);
+    renderHaTable(haPairs,allDevices);
+    renderChecklist(allDevices);
+    renderSnapMeta();
+    document.getElementById('apiResults').style.display='block';
+    document.getElementById('searchInput').value='';
+    document.getElementById('networkFilter').value='';
+    const upd='Updated '+now;
+    ['lastUpdated','uplinkUpdated','haUpdated'].forEach(id=>document.getElementById(id).textContent=upd);
+    setProgress(null);
+  }catch(e){setStatus(e.message,'error');setProgress(null);}
+}
+
+function populateNetworkFilter(){
+  const sel=document.getElementById('networkFilter');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">All Networks</option>';
+  const nets=[...new Map(allDevices.filter(d=>d.networkId).map(d=>[d.networkId,networkMap[d.networkId]||d.networkId])).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+  nets.forEach(([id,name])=>{const o=document.createElement('option');o.value=id;o.textContent=name;sel.appendChild(o);});
+  if(cur)sel.value=cur;
+}
+
+function filterTable(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const netF=document.getElementById('networkFilter').value;
+  renderTable(allDevices.filter(d=>{
+    if(netF&&d.networkId!==netF)return false;
+    const w=wanIpMap[d.serial]||{},g=w.wan1Ip?geoCache[w.wan1Ip]:w.wan2Ip?geoCache[w.wan2Ip]:null,ds=deviceStatusMap[d.serial]||{};
+    return(d.name||'').toLowerCase().includes(q)||(d.model||'').toLowerCase().includes(q)||(d.mac||'').toLowerCase().includes(q)||(d.serial||'').toLowerCase().includes(q)||(networkMap[d.networkId]||'').toLowerCase().includes(q)||(w.wan1Ip||'').includes(q)||(w.wan2Ip||'').includes(q)||(g?.city||'').toLowerCase().includes(q)||(g?.isp||'').toLowerCase().includes(q)||(d.firmware||'').toLowerCase().includes(q)||(ds.status||'').toLowerCase().includes(q);
+  }));
+}
+
+// WAN Overview table
+function renderTable(devices){
+  const tbody=document.getElementById('deviceTableBody');tbody.innerHTML='';
+  if(!devices.length){tbody.innerHTML='<tr><td colspan="14"><div class="empty-state"><div class="icon">🔍</div>No devices match</div></td></tr>';updateStats([]);return;}
+  devices.forEach(d=>{
+    const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||'');
+    const net=d.networkId?(networkMap[d.networkId]||'—'):'—';
+    const wi=wanIpMap[d.serial]||{};
+    const ds=deviceStatusMap[d.serial]||{};
+    const w1m=mac&&off.wan1!==null?addOff(mac,off.wan1):null;
+    const w2m=mac&&off.wan2!==null?addOff(mac,off.wan2):null;
+    const w3m=mac&&off.wan3!==null?addOff(mac,off.wan3):null;
+    const geo=wi.wan1Ip?geoCache[wi.wan1Ip]:wi.wan2Ip?geoCache[wi.wan2Ip]:null;
+    const geoStr=geo?`${flag(geo.countryCode)} ${geo.city||geo.country}`:'—';
+    const ispStr=geo?geo.isp:'';
+    const fw=d.firmware||'—';
+    const devSt=ds.status||'unknown';
+    const dotCls=devSt==='online'?'online':devSt==='offline'?'offline':devSt==='alerting'?'alerting':'unknown';
+    const isHA=haPairs.some(p=>p.primarySerial===d.serial||p.spareSerial===d.serial);
+    const ipTd=(ip,st,role,cls)=>{if(!ip)return`<td class="t-na">—</td>`;const s=`<span class="sdot ${st==='active'?'up':st?'down':'uk'}"></span>`;const b=role?`<span class="uplink-badge ${role}">${role}</span>`:'';return`<td class="${cls}"><div class="ip-cell">${s}${ip}${b}<span class="copy-c" onclick="copyText(this,'${ip}')">⧉</span></div></td>`;};
+    const macTd=(m,cls)=>m?`<td class="${cls}">${m}<span class="copy-c" onclick="copyText(this,'${m}')">⧉</span></td>`:`<td class="t-na">—</td>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="ddot ${dotCls}"></span>${devSt}</td><td class="t-name">${d.name||'—'}${isHA?'<span class="ha-badge">HA</span>':''}</td><td class="t-model"><span>${d.model}</span></td><td class="t-net">${net}</td>${macTd(mac,'t-mac')}${macTd(w1m,'t-w1m')}${macTd(w2m,'t-w2m')}${w3m?`<td class="t-w3m">${w3m}<span class="copy-c" onclick="copyText(this,'${w3m}')">⧉</span></td>`:`<td class="t-na">N/A</td>`}${ipTd(wi.wan1Ip,wi.wan1Status,wi.wan1Role,'t-ip1')}${ipTd(wi.wan2Ip,wi.wan2Status,wi.wan2Role,'t-ip2')}<td class="t-geo"><span class="geo-flag">${geoStr}</span>${ispStr?`<br><span style="color:var(--muted);font-size:10px">${ispStr}</span>`:''}</td><td class="t-fw">${fw}</td><td class="t-lastseen">${relTime(ds.lastReportedAt)}</td><td class="t-mac">${d.serial||'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+  updateStats(devices);
+}
+
+function updateStats(devices){
+  const online=devices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='online').length;
+  const offline=devices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='offline').length;
+  const degraded=devices.filter(d=>{const u=uplinkLossMap[d.serial]||{};return(u.wan1Loss>1)||(u.wan2Loss>1);}).length;
+  document.getElementById('statsBar').innerHTML=`<div class="stat-chip"><strong>${devices.length}</strong> Devices</div><div class="stat-chip ok"><strong>${online}</strong> Online</div><div class="stat-chip bad"><strong>${offline}</strong> Offline</div><div class="stat-chip warn"><strong>${degraded}</strong> Degraded Uplinks</div><div class="stat-chip"><strong>${haPairs.length}</strong> HA Pairs</div>`;
+}
+
+// Uplink Health
+function renderUplinkTable(devices){
+  const tbody=document.getElementById('uplinkTableBody');tbody.innerHTML='';
+  if(!devices.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state"><div class="icon">📉</div>Load data first</div></td></tr>';document.getElementById('uplinkStats').innerHTML='';return;}
+  let h=0,dg=0,c=0;
+  devices.forEach(d=>{
+    const u=uplinkLossMap[d.serial]||{},w=wanIpMap[d.serial]||{};
+    const net=d.networkId?(networkMap[d.networkId]||'—'):'—';
+    const maxL=Math.max(u.wan1Loss||0,u.wan2Loss||0);
+    if(maxL>=5)c++;else if(maxL>=1)dg++;else h++;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="t-name">${d.name||'—'}</td><td class="t-net">${net}</td><td class="t-ip1">${w.wan1Ip||'—'}</td><td>${lossPill(u.wan1Loss)}</td><td>${latCell(u.wan1Lat)}</td><td class="t-ip2">${w.wan2Ip||'—'}</td><td>${lossPill(u.wan2Loss)}</td><td>${latCell(u.wan2Lat)}</td><td class="t-mac">${d.serial||'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('uplinkStats').innerHTML=`<div class="stat-chip ok"><strong>${h}</strong> Healthy</div><div class="stat-chip warn"><strong>${dg}</strong> Degraded (1-5%)</div><div class="stat-chip bad"><strong>${c}</strong> Critical (5%+)</div>`;
+}
+function filterUplink(){
+  const q=document.getElementById('uplinkSearch').value.toLowerCase();
+  renderUplinkTable(allDevices.filter(d=>(d.name||'').toLowerCase().includes(q)||(networkMap[d.networkId]||'').toLowerCase().includes(q)||(wanIpMap[d.serial]?.wan1Ip||'').includes(q)||(wanIpMap[d.serial]?.wan2Ip||'').includes(q)));
+}
+
+// ISP View
+function renderIspView(devices){
+  const grid=document.getElementById('ispGrid');
+  if(!devices.length){grid.innerHTML='<div class="empty-state"><div class="icon">🌐</div>Load data first</div>';return;}
+  const groups={};
+  devices.forEach(d=>{
+    const w=wanIpMap[d.serial]||{};
+    [w.wan1Ip,w.wan2Ip].filter(Boolean).forEach(ip=>{
+      const geo=geoCache[ip];const isp=geo?.isp||'Unknown ISP';
+      if(!groups[isp])groups[isp]={sites:[],losses:[],geo:null};
+      if(geo&&!groups[isp].geo)groups[isp].geo=geo;
+      const u=uplinkLossMap[d.serial]||{};
+      const loss=ip===w.wan1Ip?u.wan1Loss:u.wan2Loss;
+      groups[isp].sites.push({name:d.name||'Unknown',loss,status:(deviceStatusMap[d.serial]||{}).status||'unknown'});
+      if(loss!==null&&loss!==undefined)groups[isp].losses.push(loss);
+    });
+  });
+  const sorted=Object.entries(groups).sort((a,b)=>b[1].sites.length-a[1].sites.length);
+  grid.innerHTML='';
+  if(!sorted.length){grid.innerHTML='<div class="empty-state"><div class="icon">🌐</div>No geolocation data — WAN IPs may be private addresses</div>';return;}
+  sorted.forEach(([isp,data])=>{
+    const avgL=data.losses.length?data.losses.reduce((s,x)=>s+x,0)/data.losses.length:null;
+    const lossStr=avgL!==null?`Avg loss: <span>${avgL.toFixed(1)}%</span>`:'Avg loss: <span>—</span>';
+    const countryStr=data.geo?`${flag(data.geo.countryCode)} ${data.geo.country}`:'';
+    const dots=data.sites.slice(0,10).map(s=>`<div class="isp-site"><span class="ddot ${s.status==='online'?'online':s.status==='offline'?'offline':'unknown'}"></span>${s.name}${s.loss!==null&&s.loss!==undefined?' · '+s.loss.toFixed(1)+'%':''}</div>`).join('');
+    const more=data.sites.length>10?`<div style="font-size:11px;color:var(--muted);margin-top:6px">+${data.sites.length-10} more sites</div>`:'';
+    const div=document.createElement('div');div.className='isp-card';
+    div.innerHTML=`<div class="isp-header"><div><div class="isp-name">${isp}</div><div class="isp-sub">${countryStr}</div></div><div class="isp-count">${data.sites.length} site${data.sites.length>1?'s':''}</div></div><div class="isp-avg">${lossStr}</div><div class="isp-sites">${dots}</div>${more}`;
+    grid.appendChild(div);
+  });
+}
+
+// HA Pairs
+function renderHaTable(pairs,devices){
+  const tbody=document.getElementById('haTableBody');tbody.innerHTML='';
+  const devBySerial={};devices.forEach(d=>devBySerial[d.serial]=d);
+  if(!pairs.length){tbody.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="icon">🔁</div>No HA pairs detected</div></td></tr>';document.getElementById('haStats').innerHTML='';return;}
+  let ok=0,modelMismatch=0,fwMismatch=0,spareOffline=0;
+  pairs.forEach(pair=>{
+    const pri=devBySerial[pair.primarySerial]||{};
+    const spa=devBySerial[pair.spareSerial]||{};
+    const priSt=(deviceStatusMap[pair.primarySerial]||{}).status||'unknown';
+    const spaSt=(deviceStatusMap[pair.spareSerial]||{}).status||'unknown';
+    const priWi=wanIpMap[pair.primarySerial]||{};
+    const spaWi=wanIpMap[pair.spareSerial]||{};
+    const priModel=pri.model||'—';const spaModel=spa.model||'—';
+    const priFw=pri.firmware||'—';const spaFw=spa.firmware||'—';
+    const exactModelMismatch=priModel!=='—'&&spaModel!=='—'&&priModel!==spaModel;
+    const baseModelMismatch=baseModel(priModel)!==baseModel(spaModel)&&priModel!=='—'&&spaModel!=='—';
+    const fwMis=priFw!=='—'&&spaFw!=='—'&&priFw!==spaFw;
+    if(exactModelMismatch)modelMismatch++;
+    if(fwMis)fwMismatch++;
+    if(spaSt==='offline')spareOffline++;
+    if(!exactModelMismatch&&!fwMis&&spaSt!=='offline')ok++;
+    let modelCell;
+    if(baseModelMismatch){
+      modelCell=`<td style="color:var(--danger);font-size:11px">🚫 Invalid<br><span style="font-size:10px;color:var(--muted)">${priModel} ≠ ${spaModel}</span></td>`;
+    }else if(exactModelMismatch){
+      modelCell=`<td style="color:var(--warn);font-size:11px">⚠ Regional variant<br><span style="font-size:10px;color:var(--muted)">${priModel} ≠ ${spaModel}</span></td>`;
+    }else{
+      modelCell=`<td style="color:var(--success);font-size:11px">✓ ${priModel}</td>`;
+    }
+    const fwCell=fwMis?`<td style="color:var(--danger);font-family:var(--mono);font-size:11px">⚠ ${priFw}<br>≠ ${spaFw}</td>`:`<td style="color:var(--success);font-size:11px">✓ Match</td>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${modelCell}${fwCell}`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('haStats').innerHTML=`<div class="stat-chip"><strong>${pairs.length}</strong> HA Pairs</div><div class="stat-chip ok"><strong>${ok}</strong> Healthy</div><div class="stat-chip bad"><strong>${modelMismatch}</strong> Model Mismatch</div><div class="stat-chip bad"><strong>${fwMismatch}</strong> FW Mismatch</div><div class="stat-chip warn"><strong>${spareOffline}</strong> Spare Offline</div>`;
+}
+
+// Support Checklist
+function renderChecklist(devices){
+  const list=document.getElementById('checkList');
+  if(!devices.length){list.innerHTML='<div class="empty-state"><div class="icon">✅</div>Load data first</div>';return;}
+  list.innerHTML='';
+  const devBySerial={};devices.forEach(d=>devBySerial[d.serial]=d);
+  const checks=[];
+
+  // 1. Offline devices
+  const offline=devices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='offline');
+  checks.push({status:offline.length?'fail':'pass',icon:offline.length?'🔴':'✅',title:`${offline.length} device${offline.length!==1?'s':''} offline`,desc:'Offline devices are not reachable by the Meraki cloud. Check power, upstream switch port, and internet connectivity at the site.',details:offline.map(d=>`${d.name||d.serial} — ${networkMap[d.networkId]||'Unknown network'} — Last seen: ${relTime((deviceStatusMap[d.serial]||{}).lastReportedAt)}`)});
+
+  // 2. Critical uplink loss ≥5%
+  const critLoss=devices.filter(d=>{const u=uplinkLossMap[d.serial]||{};return(u.wan1Loss>=5)||(u.wan2Loss>=5);});
+  checks.push({status:critLoss.length?'fail':'pass',icon:critLoss.length?'🔴':'✅',title:`${critLoss.length} device${critLoss.length!==1?'s':''} with critical uplink loss ≥5%`,desc:'High packet loss indicates ISP issues, cable problems, or hardware faults. Not visible org-wide in the Dashboard.',details:critLoss.map(d=>{const u=uplinkLossMap[d.serial]||{};return`${d.name||d.serial} — WAN1: ${u.wan1Loss?.toFixed(1)||'—'}% WAN2: ${u.wan2Loss?.toFixed(1)||'—'}%`;})});
+
+  // 3. Degraded uplink loss 1-5%
+  const degraded=devices.filter(d=>{const u=uplinkLossMap[d.serial]||{};return(u.wan1Loss>=1&&u.wan1Loss<5)||(u.wan2Loss>=1&&u.wan2Loss<5);});
+  checks.push({status:degraded.length?'warn':'pass',icon:degraded.length?'🟡':'✅',title:`${degraded.length} device${degraded.length!==1?'s':''} with degraded uplink loss 1–5%`,desc:'Moderate packet loss may indicate a marginal ISP circuit or intermittent issues. Monitor for escalation.',details:degraded.map(d=>{const u=uplinkLossMap[d.serial]||{};return`${d.name||d.serial} — WAN1: ${u.wan1Loss?.toFixed(1)||'—'}% WAN2: ${u.wan2Loss?.toFixed(1)||'—'}%`;})});
+
+  // 4. HA model mismatch
+  const modelMismatches=haPairs.filter(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return pri?.model&&spa?.model&&pri.model!==spa.model;});
+  checks.push({status:modelMismatches.length?'fail':'pass',icon:modelMismatches.length?'🚫':'✅',title:`${modelMismatches.length} HA pair${modelMismatches.length!==1?'s':''} with mismatched models`,desc:'HA warm spare requires identical MX models. Regional variants (e.g. MX67C-WW vs MX67C-NA) are also incompatible.',details:modelMismatches.map(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return`${networkMap[p.networkId]||p.networkId} — Primary: ${pri?.model||'—'} vs Spare: ${spa?.model||'—'}`;})});
+
+  // 5. HA firmware mismatch
+  const fwMismatches=haPairs.filter(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return pri?.firmware&&spa?.firmware&&pri.firmware!==spa.firmware;});
+  checks.push({status:fwMismatches.length?'fail':'pass',icon:fwMismatches.length?'🔴':'✅',title:`${fwMismatches.length} HA pair${fwMismatches.length!==1?'s':''} with firmware mismatch`,desc:'HA pairs must run identical firmware. Mismatched firmware can cause failover failures and unexpected behavior.',details:fwMismatches.map(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return`${networkMap[p.networkId]||p.networkId} — Primary: ${pri?.firmware||'—'} vs Spare: ${spa?.firmware||'—'}`;})});
+
+  // 6. Spare unit offline
+  const spareDown=haPairs.filter(p=>(deviceStatusMap[p.spareSerial]||{}).status==='offline');
+  checks.push({status:spareDown.length?'fail':'pass',icon:spareDown.length?'🔴':'✅',title:`${spareDown.length} HA spare unit${spareDown.length!==1?'s':''} offline`,desc:'An offline spare means there is no failover protection. The primary is running without a backup.',details:spareDown.map(p=>{const spa=devBySerial[p.spareSerial];return`${networkMap[p.networkId]||p.networkId} — Spare: ${spa?.name||p.spareSerial}`;})});
+
+  // 7. Private IPs on WAN
+  const privateWan=devices.filter(d=>{const w=wanIpMap[d.serial]||{};return[w.wan1Ip,w.wan2Ip].some(ip=>ip&&(ip.startsWith('10.')||ip.startsWith('192.168.')||ip.startsWith('172.')));});
+  checks.push({status:privateWan.length?'warn':'pass',icon:privateWan.length?'🟡':'✅',title:`${privateWan.length} device${privateWan.length!==1?'s':''} with private IP on WAN interface`,desc:'Private WAN IPs indicate the MX is behind a NAT device. This can cause AutoVPN issues and double NAT.',details:privateWan.map(d=>{const w=wanIpMap[d.serial]||{};return`${d.name||d.serial} — WAN1: ${w.wan1Ip||'—'} WAN2: ${w.wan2Ip||'—'}`;})});
+
+  // 8. Duplicate public WAN IPs
+  const ipToDevs={};
+  devices.forEach(d=>{const w=wanIpMap[d.serial]||{};[w.wan1Ip,w.wan2Ip].filter(Boolean).forEach(ip=>{if(!ipToDevs[ip])ipToDevs[ip]=[];ipToDevs[ip].push(d.name||d.serial);});});
+  const duplicates=Object.entries(ipToDevs).filter(([ip,devs])=>devs.length>1&&!ip.startsWith('10.')&&!ip.startsWith('192.168.')&&!ip.startsWith('172.'));
+  checks.push({status:duplicates.length?'fail':'pass',icon:duplicates.length?'🔴':'✅',title:`${duplicates.length} duplicate public WAN IP${duplicates.length!==1?'s':''} detected`,desc:'Two or more devices sharing the same public WAN IP indicates a configuration error that will cause AutoVPN and routing conflicts.',details:duplicates.map(([ip,devs])=>`${ip} — used by: ${devs.join(', ')}`)});
+
+  // 9. Devices not seen in 24+ hours
+  const stale=devices.filter(d=>{const ts=(deviceStatusMap[d.serial]||{}).lastReportedAt;if(!ts)return false;return(Date.now()-new Date(ts).getTime())>86400000;});
+  checks.push({status:stale.length?'warn':'pass',icon:stale.length?'🟡':'✅',title:`${stale.length} device${stale.length!==1?'s':''} not seen in over 24 hours`,desc:'Devices not checking in for over 24 hours may be offline or decommissioned.',details:stale.map(d=>`${d.name||d.serial} — Last seen: ${relTime((deviceStatusMap[d.serial]||{}).lastReportedAt)}`)});
+
+  // 10. ISP-wide elevated loss
+  const ispLoss={};
+  devices.forEach(d=>{const w=wanIpMap[d.serial]||{},u=uplinkLossMap[d.serial]||{};[{ip:w.wan1Ip,loss:u.wan1Loss},{ip:w.wan2Ip,loss:u.wan2Loss}].forEach(({ip,loss})=>{if(!ip||loss===null||loss===undefined)return;const geo=geoCache[ip];const isp=geo?.isp||null;if(!isp)return;if(!ispLoss[isp])ispLoss[isp]={total:0,count:0,sites:[]};ispLoss[isp].total+=loss;ispLoss[isp].count++;ispLoss[isp].sites.push(d.name||d.serial);});});
+  const ispIssues=Object.entries(ispLoss).filter(([,v])=>v.count>=2&&(v.total/v.count)>=2);
+  checks.push({status:ispIssues.length?'warn':'pass',icon:ispIssues.length?'🟡':'✅',title:`${ispIssues.length} ISP${ispIssues.length!==1?'s':''} with elevated loss across multiple sites`,desc:'Multiple sites on the same ISP showing elevated loss simultaneously indicates an ISP-wide issue rather than individual site problems.',details:ispIssues.map(([isp,v])=>`${isp} — Avg loss: ${(v.total/v.count).toFixed(1)}% across ${v.count} sites`)});
+
+  checks.forEach(c=>{
+    const div=document.createElement('div');div.className=`check-item ${c.status}`;
+    const detail=c.details&&c.details.length?`<div class="check-detail">${c.details.map(x=>`<div>${x}</div>`).join('')}</div>`:'';
+    div.innerHTML=`<div class="check-icon">${c.icon}</div><div class="check-body"><div class="check-title">${c.title}</div><div class="check-desc">${c.desc}</div>${detail}</div>`;
+    list.appendChild(div);
+  });
+}
+
+// Snapshot
+function buildSnapshot(){
+  const devBySerial={};allDevices.forEach(d=>devBySerial[d.serial]=d);
+  return{
+    generated:new Date().toISOString(),tool:'WAN Lens',
+    summary:{totalDevices:allDevices.length,online:allDevices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='online').length,offline:allDevices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='offline').length,haPairs:haPairs.length},
+    devices:allDevices.map(d=>{
+      const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},u=uplinkLossMap[d.serial]||{},ds=deviceStatusMap[d.serial]||{},geo=w.wan1Ip?geoCache[w.wan1Ip]:w.wan2Ip?geoCache[w.wan2Ip]:null;
+      return{name:d.name,model:d.model,serial:d.serial,network:networkMap[d.networkId]||'',status:ds.status||'unknown',lastSeen:ds.lastReportedAt||null,firmware:d.firmware||null,baseMac:mac,wan1Mac:mac&&off.wan1!==null?addOff(mac,off.wan1):null,wan2Mac:mac&&off.wan2!==null?addOff(mac,off.wan2):null,wan3Mac:mac&&off.wan3!==null?addOff(mac,off.wan3):null,wan1Ip:w.wan1Ip||null,wan2Ip:w.wan2Ip||null,wan1Loss:u.wan1Loss||null,wan2Loss:u.wan2Loss||null,wan1LatencyMs:u.wan1Lat||null,wan2LatencyMs:u.wan2Lat||null,location:geo?{city:geo.city,country:geo.country,isp:geo.isp}:null,isHaPrimary:haPairs.some(p=>p.primarySerial===d.serial),isHaSpare:haPairs.some(p=>p.spareSerial===d.serial)};
+    }),
+    haPairs:haPairs.map(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return{network:networkMap[p.networkId]||p.networkId,primaryName:pri?.name||p.primarySerial,primaryModel:pri?.model||null,primaryFirmware:pri?.firmware||null,primaryStatus:(deviceStatusMap[p.primarySerial]||{}).status||'unknown',spareName:spa?.name||p.spareSerial,spareModel:spa?.model||null,spareFirmware:spa?.firmware||null,spareStatus:(deviceStatusMap[p.spareSerial]||{}).status||'unknown',modelMatch:pri?.model===spa?.model,firmwareMatch:pri?.firmware===spa?.firmware};}),
+  };
+}
+function renderSnapMeta(){
+  if(!allDevices.length)return;
+  document.getElementById('snapEmpty').style.display='none';
+  document.getElementById('snapContent').style.display='block';
+  const online=allDevices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='online').length;
+  const offline=allDevices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='offline').length;
+  const crit=allDevices.filter(d=>{const u=uplinkLossMap[d.serial]||{};return u.wan1Loss>=5||u.wan2Loss>=5;}).length;
+  document.getElementById('snapMeta').innerHTML=`
+    <div class="meta-item"><div class="meta-label">Total Devices</div><div class="meta-value">${allDevices.length}</div></div>
+    <div class="meta-item"><div class="meta-label">Online</div><div class="meta-value ok">${online}</div></div>
+    <div class="meta-item"><div class="meta-label">Offline</div><div class="meta-value ${offline?'bad':''}">${offline}</div></div>
+    <div class="meta-item"><div class="meta-label">Critical Loss</div><div class="meta-value ${crit?'bad':''}">${crit}</div></div>
+    <div class="meta-item"><div class="meta-label">HA Pairs</div><div class="meta-value">${haPairs.length}</div></div>
+    <div class="meta-item"><div class="meta-label">Generated</div><div class="meta-value" style="font-size:12px">${new Date().toLocaleTimeString()}</div></div>`;
+}
+function downloadSnapshot(){const snap=buildSnapshot();const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(snap,null,2));a.download=`wanlens-snapshot-${new Date().toISOString().slice(0,16).replace(':','-')}.json`;a.click();}
+function copySnapshot(){navigator.clipboard.writeText(JSON.stringify(buildSnapshot(),null,2)).then(()=>{const btn=document.querySelectorAll('.snap-btn')[1];btn.textContent='✓ Copied!';setTimeout(()=>btn.textContent='📋 Copy to Clipboard',2000);});}
+
+// Export
+function exportCSV(){
+  const rows=[['Status','Device','Model','Network','Base MAC','WAN 1 MAC','WAN 2 MAC','WAN 3 MAC','WAN 1 IP','WAN 1 Role','WAN 2 IP','WAN 2 Role','City','Country','ISP','Firmware','Last Seen','Serial']];
+  allDevices.forEach(d=>{const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},g=w.wan1Ip?geoCache[w.wan1Ip]:w.wan2Ip?geoCache[w.wan2Ip]:{},ds=deviceStatusMap[d.serial]||{};rows.push([ds.status||'',d.name||'',d.model,networkMap[d.networkId]||'',mac||'',mac&&off.wan1!==null?addOff(mac,off.wan1):'N/A',mac&&off.wan2!==null?addOff(mac,off.wan2):'N/A',mac&&off.wan3!==null?addOff(mac,off.wan3):'N/A',w.wan1Ip||'',w.wan1Role||'',w.wan2Ip||'',w.wan2Role||'',g?.city||'',g?.country||'',g?.isp||'',d.firmware||'',relTime(ds.lastReportedAt),d.serial||'']);});
+  dlCSV(rows,'wanlens-overview');
+}
+function exportUplinkCSV(){const rows=[['Device','Network','WAN 1 IP','WAN 1 Loss%','WAN 1 Lat ms','WAN 2 IP','WAN 2 Loss%','WAN 2 Lat ms','Serial']];allDevices.forEach(d=>{const u=uplinkLossMap[d.serial]||{},w=wanIpMap[d.serial]||{};rows.push([d.name||'',networkMap[d.networkId]||'',w.wan1Ip||'',u.wan1Loss?.toFixed(1)||'',u.wan1Lat?.toFixed(0)||'',w.wan2Ip||'',u.wan2Loss?.toFixed(1)||'',u.wan2Lat?.toFixed(0)||'',d.serial||'']);});dlCSV(rows,'wanlens-uplink');}
+function dlCSV(rows,name){const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`${name}-${new Date().toISOString().slice(0,10)}.csv`;a.click();}
+function copyAll(){const rows=allDevices.map(d=>{const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},ds=deviceStatusMap[d.serial]||{};return[d.name||'',d.model,ds.status||'',mac&&off.wan1!==null?addOff(mac,off.wan1):'N/A',mac&&off.wan2!==null?addOff(mac,off.wan2):'N/A',w.wan1Ip||'—',w.wan2Ip||'—'].join('\t');});navigator.clipboard.writeText(rows.join('\n'));}
+function copyText(el,text){navigator.clipboard.writeText(text).then(()=>{el.classList.add('copied');const o=el.textContent;el.textContent='✓';setTimeout(()=>{el.textContent=o;el.classList.remove('copied');},1500);});}
+document.getElementById('apiKey').addEventListener('keydown',e=>{if(e.key==='Enter')fetchOrganizations();});
+</script>
+</body>
+</html>
