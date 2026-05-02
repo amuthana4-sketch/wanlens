@@ -416,7 +416,7 @@ footer a{color:var(–accent);text-decoration:none;}
             <th>Network</th>
             <th class="c-ha">Primary Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
             <th class="c-ha">Spare Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
-            <th>Model</th><th>Firmware</th>
+            <th>Model</th><th>Firmware</th><th style="color:#d4a8ff">Virtual MAC</th>
           </tr></thead>
           <tbody id="haTableBody"></tbody>
         </table>
@@ -471,7 +471,7 @@ footer a{color:var(–accent);text-decoration:none;}
 <script>
 const OFFSETS={MX60:{wan1:5,wan2:4,wan3:null},MX60W:{wan1:5,wan2:4,wan3:null},MX64:{wan1:5,wan2:4,wan3:null},MX64W:{wan1:5,wan2:4,wan3:null},MX65:{wan1:1,wan2:2,wan3:null},MX65W:{wan1:1,wan2:2,wan3:null},MX67:{wan1:1,wan2:2,wan3:null},MX67W:{wan1:1,wan2:2,wan3:null},MX67C:{wan1:1,wan2:2,wan3:null},MX68:{wan1:1,wan2:2,wan3:null},MX68W:{wan1:1,wan2:2,wan3:null},MX68CW:{wan1:1,wan2:2,wan3:null},MX75:{wan1:1,wan2:2,wan3:3},MX80:{wan1:1,wan2:2,wan3:null},MX84:{wan1:1,wan2:2,wan3:null},MX85:{wan1:1,wan2:2,wan3:4},MX90:{wan1:1,wan2:2,wan3:null},MX95:{wan1:1,wan2:2,wan3:4},MX100:{wan1:1,wan2:2,wan3:null},MX105:{wan1:1,wan2:2,wan3:4},MX250:{wan1:1,wan2:2,wan3:null},MX400:{wan1:2,wan2:4,wan3:null},MX450:{wan1:1,wan2:2,wan3:null},MX600:{wan1:2,wan2:4,wan3:null},Z1:{wan1:5,wan2:null,wan3:null},Z3:{wan1:1,wan2:null,wan3:null},Z4:{wan1:1,wan2:null,wan3:null}};
 const MX_MODELS=new Set(Object.keys(OFFSETS));
-let allDevices=[],networkMap={},wanIpMap={},geoCache={},deviceStatusMap={},orgMap={},uplinkLossMap={},haPairs=[],autoRefreshTimer=null,savedKey='',savedOrgId='';
+let allDevices=[],networkMap={},wanIpMap={},geoCache={},deviceStatusMap={},orgMap={},uplinkLossMap={},haPairs=[],rawUplinkMap={},autoRefreshTimer=null,savedKey='',savedOrgId='';
 
 function nMAC(r){if(!r)return null;const c=r.replace(/[^0-9a-fA-F]/g,'');if(c.length!==12)return null;const p=[];for(let i=0;i<12;i+=2)p.push(c.substr(i,2).toUpperCase());return p.join(':');}
 function addOff(mac,o){const b=mac.split(':').map(x=>parseInt(x,16));let v=(b[3]<<16)|(b[4]<<8)|b[5];v=(v+o)&0xFFFFFF;b[3]=(v>>16)&0xFF;b[4]=(v>>8)&0xFF;b[5]=v&0xFF;return b.map(x=>x.toString(16).padStart(2,'0').toUpperCase()).join(':');}
@@ -581,7 +581,7 @@ function setAutoRefresh(){clearInterval(autoRefreshTimer);const s=parseInt(docum
 
 async function loadData(key,orgId,silent=false){
   if(!silent){setStatus('Fetching devices…','loading');setProgress(10,'Fetching devices and networks…');document.getElementById('apiResults').style.display='none';}
-  wanIpMap={};deviceStatusMap={};uplinkLossMap={};haPairs=[];
+  wanIpMap={};deviceStatusMap={};uplinkLossMap={};haPairs=[];rawUplinkMap={};
   try{
     setProgress(20,'Fetching all data…');
     const [devs,nets,ups,stats,loss,warmSpare]=await Promise.allSettled([
@@ -597,10 +597,13 @@ async function loadData(key,orgId,silent=false){
     if(nets.status==='fulfilled')nets.value.forEach(n=>{networkMap[n.id]=n.name;});
     if(ups.status==='fulfilled')ups.value.forEach(d=>{
       if(!d.serial)return;
-      const e={wan1Ip:null,wan2Ip:null,wan1Status:null,wan2Status:null,wan1Role:null,wan2Role:null};
+      // Store raw uplinks for cellular detection and dual WAN gap analysis
+      rawUplinkMap[d.serial]=d.uplinks||[];
+      const e={wan1Ip:null,wan2Ip:null,wan1Status:null,wan2Status:null,wan1Role:null,wan2Role:null,cellularActive:false,cellularIp:null};
       (d.uplinks||[]).forEach(u=>{
         if(u.interface==='wan1'){e.wan1Ip=u.ip||null;e.wan1Status=u.status||null;}
         if(u.interface==='wan2'){e.wan2Ip=u.ip||null;e.wan2Status=u.status||null;}
+        if(u.interface==='cellular'&&u.status==='active'){e.cellularActive=true;e.cellularIp=u.ip||null;}
       });
       if(d.activeInterface){e.wan1Role=d.activeInterface==='wan1'?'primary':'failover';e.wan2Role=d.activeInterface==='wan2'?'primary':'failover';}
       wanIpMap[d.serial]=e;
@@ -686,10 +689,12 @@ function renderTable(devices){
     const devSt=ds.status||'unknown';
     const dotCls=devSt==='online'?'online':devSt==='offline'?'offline':devSt==='alerting'?'alerting':'unknown';
     const isHA=haPairs.some(p=>p.primarySerial===d.serial||p.spareSerial===d.serial);
+    const cellActive=(wanIpMap[d.serial]||{}).cellularActive;
+    const cellIp=(wanIpMap[d.serial]||{}).cellularIp;
     const ipTd=(ip,st,role,cls)=>{if(!ip)return`<td class="t-na">—</td>`;const s=`<span class="sdot ${st==='active'?'up':st?'down':'uk'}"></span>`;const b=role?`<span class="uplink-badge ${role}">${role}</span>`:'';return`<td class="${cls}"><div class="ip-cell">${s}${ip}${b}<span class="copy-c" onclick="copyText(this,'${ip}')">⧉</span></div></td>`;};
     const macTd=(m,cls)=>m?`<td class="${cls}">${m}<span class="copy-c" onclick="copyText(this,'${m}')">⧉</span></td>`:`<td class="t-na">—</td>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="ddot ${dotCls}"></span>${devSt}</td><td class="t-name">${d.name||'—'}${isHA?'<span class="ha-badge">HA</span>':''}</td><td class="t-model"><span>${d.model}</span></td><td class="t-net">${net}</td>${macTd(mac,'t-mac')}${macTd(w1m,'t-w1m')}${macTd(w2m,'t-w2m')}${w3m?`<td class="t-w3m">${w3m}<span class="copy-c" onclick="copyText(this,'${w3m}')">⧉</span></td>`:`<td class="t-na">N/A</td>`}${ipTd(wi.wan1Ip,wi.wan1Status,wi.wan1Role,'t-ip1')}${ipTd(wi.wan2Ip,wi.wan2Status,wi.wan2Role,'t-ip2')}<td class="t-geo"><span class="geo-flag">${geoStr}</span>${ispStr?`<br><span style="color:var(--muted);font-size:10px">${ispStr}</span>`:''}</td><td class="t-fw">${fw}</td><td class="t-lastseen">${relTime(ds.lastReportedAt)}</td><td class="t-mac">${d.serial||'—'}</td>`;
+    tr.innerHTML=`<td><span class="ddot ${dotCls}"></span>${devSt}</td><td class="t-name">${d.name||'—'}${isHA?'<span class="ha-badge">HA</span>':''}${cellActive?`<span style="display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;font-family:var(--sans);font-weight:700;background:rgba(255,181,71,0.15);color:var(--warn);border:1px solid rgba(255,181,71,0.3);margin-left:4px">📶 CELLULAR</span>`:''}</td><td class="t-model"><span>${d.model}</span></td><td class="t-net">${net}</td>${macTd(mac,'t-mac')}${macTd(w1m,'t-w1m')}${macTd(w2m,'t-w2m')}${w3m?`<td class="t-w3m">${w3m}<span class="copy-c" onclick="copyText(this,'${w3m}')">⧉</span></td>`:`<td class="t-na">N/A</td>`}${ipTd(wi.wan1Ip,wi.wan1Status,wi.wan1Role,'t-ip1')}${ipTd(wi.wan2Ip,wi.wan2Status,wi.wan2Role,'t-ip2')}<td class="t-geo"><span class="geo-flag">${geoStr}</span>${ispStr?`<br><span style="color:var(--muted);font-size:10px">${ispStr}</span>`:''}</td><td class="t-fw">${fw}</td><td class="t-lastseen">${relTime(ds.lastReportedAt)}</td><td class="t-mac">${d.serial||'—'}</td>`;
     tbody.appendChild(tr);
   });
   updateStats(devices);
@@ -781,7 +786,7 @@ function renderIspView(devices){
 function renderHaTable(pairs,devices){
   const tbody=document.getElementById('haTableBody');tbody.innerHTML='';
   const devBySerial={};devices.forEach(d=>devBySerial[d.serial]=d);
-  if(!pairs.length){tbody.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="icon">🔁</div>No HA pairs detected</div></td></tr>';document.getElementById('haStats').innerHTML='';return;}
+  if(!pairs.length){tbody.innerHTML='<tr><td colspan="12"><div class="empty-state"><div class="icon">🔁</div>No HA pairs detected</div></td></tr>';document.getElementById('haStats').innerHTML='';return;}
   let ok=0,modelMismatch=0,fwMismatch=0,spareOffline=0;
   pairs.forEach(pair=>{
     const pri=devBySerial[pair.primarySerial]||{};
@@ -806,9 +811,15 @@ function renderHaTable(pairs,devices){
     }else{
       modelCell=`<td style="color:var(--success);font-size:11px">✓ ${priModel}</td>`;
     }
+    // Virtual MAC calculation for HA routed mode
+    // Virtual MACs = base MAC of primary with offset +1 for each interface
+    const priMac=nMAC(pri.mac||'');
+    const virtualMac=priMac?addOff(priMac,1):null;
+
     const fwCell=fwMis?`<td style="color:var(--danger);font-family:var(--mono);font-size:11px">⚠ ${priFw}<br>≠ ${spaFw}</td>`:`<td style="color:var(--success);font-size:11px">✓ Match</td>`;
+    const virtualMacCell=virtualMac?`<td class="t-mac" style="color:#d4a8ff">${virtualMac}<span class="copy-c" onclick="copyText(this,'${virtualMac}')">⧉</span></td>`:`<td class="t-na">—</td>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${modelCell}${fwCell}`;
+    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${modelCell}${fwCell}${virtualMacCell}`;
     tbody.appendChild(tr);
   });
   document.getElementById('haStats').innerHTML=`<div class="stat-chip"><strong>${pairs.length}</strong> HA Pairs</div><div class="stat-chip ok"><strong>${ok}</strong> Healthy</div>${modelMismatch?`<div class="stat-chip warn"><strong>${modelMismatch}</strong> Regional Variant Mismatch</div>`:''}<div class="stat-chip bad"><strong>${fwMismatch}</strong> FW Mismatch</div><div class="stat-chip warn"><strong>${spareOffline}</strong> Spare Offline</div>`;
@@ -869,6 +880,21 @@ function renderChecklist(devices){
   devices.forEach(d=>{const w=wanIpMap[d.serial]||{},u=uplinkLossMap[d.serial]||{};[{ip:w.wan1Ip,loss:u.wan1Loss},{ip:w.wan2Ip,loss:u.wan2Loss}].forEach(({ip,loss})=>{if(!ip||loss===null||loss===undefined)return;const geo=geoCache[ip];const isp=geo?.isp||null;if(!isp)return;if(!ispLoss[isp])ispLoss[isp]={total:0,count:0,sites:[]};ispLoss[isp].total+=loss;ispLoss[isp].count++;ispLoss[isp].sites.push(d.name||d.serial);});});
   const ispIssues=Object.entries(ispLoss).filter(([,v])=>v.count>=2&&(v.total/v.count)>=2);
   checks.push({status:ispIssues.length?'warn':'pass',icon:ispIssues.length?'🟡':'✅',title:`${ispIssues.length} ISP${ispIssues.length!==1?'s':''} with elevated loss across multiple sites`,desc:'Multiple sites on the same ISP showing elevated loss simultaneously indicates an ISP-wide issue rather than individual site problems.',details:ispIssues.map(([isp,v])=>`${isp} — Avg loss: ${(v.total/v.count).toFixed(1)}% across ${v.count} sites`)});
+
+  // 11. Cellular uplink active
+  const cellularDevices=devices.filter(d=>(wanIpMap[d.serial]||{}).cellularActive);
+  checks.push({status:cellularDevices.length?'warn':'pass',icon:cellularDevices.length?'📶':'✅',title:`${cellularDevices.length} device${cellularDevices.length!==1?'s':''} with active cellular uplink`,desc:'Devices using cellular as an active uplink may indicate the primary WAN circuit has failed and cellular failover is active. Dashboard does not show this org-wide.',details:cellularDevices.map(d=>{const ip=(wanIpMap[d.serial]||{}).cellularIp;return`${d.name||d.serial} — ${networkMap[d.networkId]||'Unknown network'}${ip?' — IP: '+ip:''}`;})});
+
+  // 12. Dual WAN capable but only one WAN connected
+  const dualWanGap=devices.filter(d=>{
+    const mk=getMK(d.model),off=OFFSETS[mk];
+    if(!off||off.wan2===null)return false; // Single WAN model
+    const w=wanIpMap[d.serial]||{};
+    const raw=rawUplinkMap[d.serial]||[];
+    const wan2Connected=w.wan2Ip||raw.some(u=>u.interface==='wan2'&&u.status!=='not connected');
+    return!wan2Connected;
+  });
+  checks.push({status:dualWanGap.length?'warn':'pass',icon:dualWanGap.length?'⚡':'✅',title:`${dualWanGap.length} device${dualWanGap.length!==1?'s':''} capable of dual WAN but only one WAN connected`,desc:'These devices support a second WAN interface for redundancy but WAN 2 is not connected. A single WAN connection means no failover protection if the primary circuit fails. Dashboard does not flag this org-wide.',details:dualWanGap.map(d=>`${d.name||d.serial} — ${d.model} — ${networkMap[d.networkId]||'Unknown network'}`)});
 
   checks.forEach(c=>{
     const div=document.createElement('div');div.className=`check-item ${c.status}`;
