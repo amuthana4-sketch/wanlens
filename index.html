@@ -380,8 +380,8 @@ footer a{color:var(–accent);text-decoration:none;}
         <table style="min-width:800px">
           <thead><tr>
             <th>Device</th><th>Network</th>
-            <th class="c-ip1">WAN 1 IP</th><th class="c-loss">WAN 1 Loss</th><th class="c-lat">WAN 1 Latency</th>
-            <th class="c-ip2">WAN 2 IP</th><th class="c-loss">WAN 2 Loss</th><th class="c-lat">WAN 2 Latency</th>
+            <th class="c-ip1">WAN 1 IP</th><th class="c-loss">WAN 1 Loss</th><th class="c-lat">WAN 1 Latency</th><th style="color:#ff9f7d!important">WAN 1 Jitter</th>
+            <th class="c-ip2">WAN 2 IP</th><th class="c-loss">WAN 2 Loss</th><th class="c-lat">WAN 2 Latency</th><th style="color:#ff9f7d!important">WAN 2 Jitter</th>
             <th>Serial</th>
           </tr></thead>
           <tbody id="uplinkTableBody"></tbody>
@@ -543,6 +543,7 @@ function flag(code){if(!code)return '';const o=0x1F1E6;return String.fromCodePoi
 function relTime(ts){if(!ts)return '—';const d=Math.floor((Date.now()-new Date(ts).getTime())/1000);if(d<60)return`${d}s ago`;if(d<3600)return`${Math.floor(d/60)}m ago`;if(d<86400)return`${Math.floor(d/3600)}h ago`;return`${Math.floor(d/86400)}d ago`;}
 function lossPill(v){if(v===null||v===undefined)return`<span class="loss-pill na">—</span>`;const p=parseFloat(v).toFixed(1),cls=v<1?'good':v<5?'warn':'bad';return`<span class="loss-pill ${cls}">${p}%</span>`;}
 function latCell(ms){if(ms===null||ms===undefined)return'—';const cls=ms<50?'color:var(--success)':ms<150?'color:var(--warn)':'color:var(--danger)';return`<span style="${cls};font-family:var(--mono)">${Math.round(ms)}ms</span>`;}
+function jitterCell(ms){if(ms===null||ms===undefined)return'—';const cls=ms<10?'color:var(--success)':ms<30?'color:var(--warn)':'color:var(--danger)';return`<span style="${cls};font-family:var(--mono)">${Math.round(ms)}ms</span>`;}
 
 async function fetchOrganizations(){
   const key=document.getElementById('apiKey').value.trim();if(!key)return;
@@ -611,13 +612,14 @@ async function loadData(key,orgId,silent=false){
     if(stats.status==='fulfilled')stats.value.forEach(d=>{if(d.serial)deviceStatusMap[d.serial]={status:d.status,lastReportedAt:d.lastReportedAt};});
     if(loss.status==='fulfilled')loss.value.forEach(d=>{
       if(!d.serial)return;
-      if(!uplinkLossMap[d.serial])uplinkLossMap[d.serial]={wan1Loss:null,wan1Lat:null,wan2Loss:null,wan2Lat:null};
+      if(!uplinkLossMap[d.serial])uplinkLossMap[d.serial]={wan1Loss:null,wan1Lat:null,wan1Jitter:null,wan2Loss:null,wan2Lat:null,wan2Jitter:null};
       const ts=d.timeSeries||[];if(!ts.length)return;
       const rec=ts.slice(-5);
       const avgL=rec.reduce((s,x)=>s+(x.lossPercent||0),0)/rec.length;
       const avgLat=rec.reduce((s,x)=>s+(x.latencyMs||0),0)/rec.length;
-      if(d.uplink==='wan1'){uplinkLossMap[d.serial].wan1Loss=avgL;uplinkLossMap[d.serial].wan1Lat=avgLat;}
-      if(d.uplink==='wan2'){uplinkLossMap[d.serial].wan2Loss=avgL;uplinkLossMap[d.serial].wan2Lat=avgLat;}
+      const avgJitter=rec.filter(x=>x.jitter!=null).reduce((s,x)=>s+(x.jitter||0),0)/Math.max(rec.filter(x=>x.jitter!=null).length,1);
+      if(d.uplink==='wan1'){uplinkLossMap[d.serial].wan1Loss=avgL;uplinkLossMap[d.serial].wan1Lat=avgLat;uplinkLossMap[d.serial].wan1Jitter=avgJitter||null;}
+      if(d.uplink==='wan2'){uplinkLossMap[d.serial].wan2Loss=avgL;uplinkLossMap[d.serial].wan2Lat=avgLat;uplinkLossMap[d.serial].wan2Jitter=avgJitter||null;}
     });
     // HA detection via warm spare statuses
     if(warmSpare.status==='fulfilled')warmSpare.value.forEach(ws=>{
@@ -712,7 +714,7 @@ function isPrivateIp(ip){return ip&&(ip.startsWith('10.')||ip.startsWith('192.16
 
 function renderUplinkTable(devices){
   const tbody=document.getElementById('uplinkTableBody');tbody.innerHTML='';
-  if(!devices.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state"><div class="icon">📉</div>Load data first</div></td></tr>';document.getElementById('uplinkStats').innerHTML='';return;}
+  if(!devices.length){tbody.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="icon">📉</div>Load data first</div></td></tr>';document.getElementById('uplinkStats').innerHTML='';return;}
   let h=0,dg=0,c=0,nat=0;
   devices.forEach(d=>{
     const u=uplinkLossMap[d.serial]||{},w=wanIpMap[d.serial]||{};
@@ -739,7 +741,7 @@ function renderUplinkTable(devices){
 
     const tr=document.createElement('tr');
     tr.style.background=isNatDevice?'rgba(255,181,71,0.03)':'';
-    tr.innerHTML=`<td class="t-name">${d.name||'—'}${natNote}</td><td class="t-net">${net}</td><td class="t-ip1">${w.wan1Ip||'—'}${wan1Private?` <span style="font-size:10px;color:var(--warn)">private</span>`:''}  </td><td>${lossDisplay(u.wan1Loss,w.wan1Ip,wan1NatArtifact)}</td><td>${latCell(u.wan1Lat)}</td><td class="t-ip2">${w.wan2Ip||'—'}${wan2Private?` <span style="font-size:10px;color:var(--warn)">private</span>`:''}</td><td>${lossDisplay(u.wan2Loss,w.wan2Ip,wan2NatArtifact)}</td><td>${latCell(u.wan2Lat)}</td><td class="t-mac">${d.serial||'—'}</td>`;
+    tr.innerHTML=`<td class="t-name">${d.name||'—'}${natNote}</td><td class="t-net">${net}</td><td class="t-ip1">${w.wan1Ip||'—'}${wan1Private?` <span style="font-size:10px;color:var(--warn)">private</span>`:''}  </td><td>${lossDisplay(u.wan1Loss,w.wan1Ip,wan1NatArtifact)}</td><td>${latCell(u.wan1Lat)}</td><td>${jitterCell(u.wan1Jitter)}</td><td class="t-ip2">${w.wan2Ip||'—'}${wan2Private?` <span style="font-size:10px;color:var(--warn)">private</span>`:''}</td><td>${lossDisplay(u.wan2Loss,w.wan2Ip,wan2NatArtifact)}</td><td>${latCell(u.wan2Lat)}</td><td>${jitterCell(u.wan2Jitter)}</td><td class="t-mac">${d.serial||'—'}</td>`;
     tbody.appendChild(tr);
   });
   const natChip=nat?`<div class="stat-chip warn"><strong>${nat}</strong> Behind NAT</div>`:'';
@@ -912,7 +914,7 @@ function buildSnapshot(){
     summary:{totalDevices:allDevices.length,online:allDevices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='online').length,offline:allDevices.filter(d=>(deviceStatusMap[d.serial]||{}).status==='offline').length,haPairs:haPairs.length},
     devices:allDevices.map(d=>{
       const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},u=uplinkLossMap[d.serial]||{},ds=deviceStatusMap[d.serial]||{},geo=w.wan1Ip?geoCache[w.wan1Ip]:w.wan2Ip?geoCache[w.wan2Ip]:null;
-      return{name:d.name,model:d.model,serial:d.serial,network:networkMap[d.networkId]||'',status:ds.status||'unknown',lastSeen:ds.lastReportedAt||null,firmware:d.firmware||null,baseMac:mac,wan1Mac:mac&&off.wan1!==null?addOff(mac,off.wan1):null,wan2Mac:mac&&off.wan2!==null?addOff(mac,off.wan2):null,wan3Mac:mac&&off.wan3!==null?addOff(mac,off.wan3):null,wan1Ip:w.wan1Ip||null,wan2Ip:w.wan2Ip||null,wan1Loss:u.wan1Loss||null,wan2Loss:u.wan2Loss||null,wan1LatencyMs:u.wan1Lat||null,wan2LatencyMs:u.wan2Lat||null,location:geo?{city:geo.city,country:geo.country,isp:geo.isp}:null,isHaPrimary:haPairs.some(p=>p.primarySerial===d.serial),isHaSpare:haPairs.some(p=>p.spareSerial===d.serial)};
+      return{name:d.name,model:d.model,serial:d.serial,network:networkMap[d.networkId]||'',status:ds.status||'unknown',lastSeen:ds.lastReportedAt||null,firmware:d.firmware||null,baseMac:mac,wan1Mac:mac&&off.wan1!==null?addOff(mac,off.wan1):null,wan2Mac:mac&&off.wan2!==null?addOff(mac,off.wan2):null,wan3Mac:mac&&off.wan3!==null?addOff(mac,off.wan3):null,wan1Ip:w.wan1Ip||null,wan2Ip:w.wan2Ip||null,wan1Loss:u.wan1Loss||null,wan2Loss:u.wan2Loss||null,wan1LatencyMs:u.wan1Lat||null,wan2LatencyMs:u.wan2Lat||null,wan1JitterMs:u.wan1Jitter||null,wan2JitterMs:u.wan2Jitter||null,cellularActive:w.cellularActive||false,cellularIp:w.cellularIp||null,location:geo?{city:geo.city,country:geo.country,isp:geo.isp}:null,isHaPrimary:haPairs.some(p=>p.primarySerial===d.serial),isHaSpare:haPairs.some(p=>p.spareSerial===d.serial)};
     }),
     haPairs:haPairs.map(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return{network:networkMap[p.networkId]||p.networkId,primaryName:pri?.name||p.primarySerial,primaryModel:pri?.model||null,primaryFirmware:pri?.firmware||null,primaryStatus:(deviceStatusMap[p.primarySerial]||{}).status||'unknown',spareName:spa?.name||p.spareSerial,spareModel:spa?.model||null,spareFirmware:spa?.firmware||null,spareStatus:(deviceStatusMap[p.spareSerial]||{}).status||'unknown',modelMatch:pri?.model===spa?.model,firmwareMatch:pri?.firmware===spa?.firmware};}),
   };
@@ -941,7 +943,7 @@ function exportCSV(){
   allDevices.forEach(d=>{const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},g=w.wan1Ip?geoCache[w.wan1Ip]:w.wan2Ip?geoCache[w.wan2Ip]:{},ds=deviceStatusMap[d.serial]||{};rows.push([ds.status||'',d.name||'',d.model,networkMap[d.networkId]||'',mac||'',mac&&off.wan1!==null?addOff(mac,off.wan1):'N/A',mac&&off.wan2!==null?addOff(mac,off.wan2):'N/A',mac&&off.wan3!==null?addOff(mac,off.wan3):'N/A',w.wan1Ip||'',w.wan1Role||'',w.wan2Ip||'',w.wan2Role||'',g?.city||'',g?.country||'',g?.isp||'',d.firmware||'',relTime(ds.lastReportedAt),d.serial||'']);});
   dlCSV(rows,'wanlens-overview');
 }
-function exportUplinkCSV(){const rows=[['Device','Network','WAN 1 IP','WAN 1 Loss%','WAN 1 Lat ms','WAN 2 IP','WAN 2 Loss%','WAN 2 Lat ms','Serial']];allDevices.forEach(d=>{const u=uplinkLossMap[d.serial]||{},w=wanIpMap[d.serial]||{};rows.push([d.name||'',networkMap[d.networkId]||'',w.wan1Ip||'',u.wan1Loss?.toFixed(1)||'',u.wan1Lat?.toFixed(0)||'',w.wan2Ip||'',u.wan2Loss?.toFixed(1)||'',u.wan2Lat?.toFixed(0)||'',d.serial||'']);});dlCSV(rows,'wanlens-uplink');}
+function exportUplinkCSV(){const rows=[['Device','Network','WAN 1 IP','WAN 1 Loss%','WAN 1 Lat ms','WAN 1 Jitter ms','WAN 2 IP','WAN 2 Loss%','WAN 2 Lat ms','WAN 2 Jitter ms','Serial']];allDevices.forEach(d=>{const u=uplinkLossMap[d.serial]||{},w=wanIpMap[d.serial]||{};rows.push([d.name||'',networkMap[d.networkId]||'',w.wan1Ip||'',u.wan1Loss?.toFixed(1)||'',u.wan1Lat?.toFixed(0)||'',u.wan1Jitter?.toFixed(1)||'',w.wan2Ip||'',u.wan2Loss?.toFixed(1)||'',u.wan2Lat?.toFixed(0)||'',u.wan2Jitter?.toFixed(1)||'',d.serial||'']);});dlCSV(rows,'wanlens-uplink');}
 function dlCSV(rows,name){const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`${name}-${new Date().toISOString().slice(0,10)}.csv`;a.click();}
 function copyAll(){const rows=allDevices.map(d=>{const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},ds=deviceStatusMap[d.serial]||{};return[d.name||'',d.model,ds.status||'',mac&&off.wan1!==null?addOff(mac,off.wan1):'N/A',mac&&off.wan2!==null?addOff(mac,off.wan2):'N/A',w.wan1Ip||'—',w.wan2Ip||'—'].join('\t');});navigator.clipboard.writeText(rows.join('\n'));}
 function copyText(el,text){navigator.clipboard.writeText(text).then(()=>{el.classList.add('copied');const o=el.textContent;el.textContent='✓';setTimeout(()=>{el.textContent=o;el.classList.remove('copied');},1500);});}
