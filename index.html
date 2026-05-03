@@ -407,7 +407,7 @@ footer a{color:var(–accent);text-decoration:none;}
 
   <div class="tab-content" id="tab-ha">
     <div class="card">
-      <div class="notice"><strong>ℹ️</strong> HA warm spare validation — the Dashboard prevents different model families from being paired, but regional variant mismatches (e.g. MX67C-WW vs MX67C-NA) and firmware mismatches can still occur. Load data from WAN Overview first.</div>
+      <div class="notice"><strong>ℹ️</strong> HA warm spare validation including potential split brain detection, firmware mismatch, and spare offline checks. Split brain detection is inferred from uplink status — the Meraki API does not expose HA role directly. Always verify a flagged split brain in the Dashboard immediately. Load data from WAN Overview first.</div>
       <div class="card-title">HA Warm Spare Pairs <span class="last-updated" id="haUpdated"></span></div>
       <div class="stats-bar" id="haStats"></div>
       <div class="table-wrap">
@@ -416,7 +416,7 @@ footer a{color:var(–accent);text-decoration:none;}
             <th>Network</th>
             <th class="c-ha">Primary Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
             <th class="c-ha">Spare Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
-            <th>Model</th><th>Firmware</th><th style="color:#d4a8ff">Virtual MAC</th>
+            <th style="color:var(--danger)!important">Split Brain</th><th>Firmware</th><th style="color:#d4a8ff">Virtual MAC</th>
           </tr></thead>
           <tbody id="haTableBody"></tbody>
         </table>
@@ -800,18 +800,25 @@ function renderHaTable(pairs,devices){
     const priModel=pri.model||'—';const spaModel=spa.model||'—';
     const priFw=pri.firmware||'—';const spaFw=spa.firmware||'—';
     // Dashboard prevents different model families from being paired
-    // Only check for regional variant mismatch (e.g. MX67C-WW vs MX67C-NA)
-    const regionalMismatch=priModel!=='—'&&spaModel!=='—'&&priModel!==spaModel&&baseModel(priModel)===baseModel(spaModel);
+    // Split brain detection: both units online + spare showing active WAN
+    // Note: Meraki API does not expose HA role directly (MXIDEA-I-511)
+    // We infer potential split brain when both units are online simultaneously
+    // AND the spare has an active WAN IP (suggesting it may be forwarding traffic)
+    const bothOnline=priSt==='online'&&spaSt==='online';
+    const spareHasActiveWan=!!(spaWi.wan1Ip&&spaWi.wan1Status==='active');
+    const potentialSplitBrain=bothOnline&&spareHasActiveWan;
     const fwMis=priFw!=='—'&&spaFw!=='—'&&priFw!==spaFw;
-    if(regionalMismatch)modelMismatch++;
+    if(potentialSplitBrain)modelMismatch++;
     if(fwMis)fwMismatch++;
     if(spaSt==='offline')spareOffline++;
-    if(!regionalMismatch&&!fwMis&&spaSt!=='offline')ok++;
-    let modelCell;
-    if(regionalMismatch){
-      modelCell=`<td style="color:var(--warn);font-size:11px">⚠ Regional variant<br><span style="font-size:10px;color:var(--muted)">${priModel} ≠ ${spaModel}</span></td>`;
+    if(!potentialSplitBrain&&!fwMis&&spaSt!=='offline')ok++;
+    let splitBrainCell;
+    if(potentialSplitBrain){
+      splitBrainCell=`<td style="color:var(--danger);font-size:11px">⚠ Possible Split Brain<br><span style="font-size:10px;color:var(--muted)">Both online + spare WAN active<br>Verify in Dashboard</span></td>`;
+    }else if(bothOnline&&!spareHasActiveWan){
+      splitBrainCell=`<td style="color:var(--success);font-size:11px">✓ Normal<br><span style="font-size:10px;color:var(--muted)">Primary active, spare ready</span></td>`;
     }else{
-      modelCell=`<td style="color:var(--success);font-size:11px">✓ ${priModel}</td>`;
+      splitBrainCell=`<td style="color:var(--muted);font-size:11px">—</td>`;
     }
     // Virtual MAC calculation for HA routed mode
     // Virtual MACs = base MAC of primary with offset +1 for each interface
@@ -821,10 +828,10 @@ function renderHaTable(pairs,devices){
     const fwCell=fwMis?`<td style="color:var(--danger);font-family:var(--mono);font-size:11px">⚠ ${priFw}<br>≠ ${spaFw}</td>`:`<td style="color:var(--success);font-size:11px">✓ Match</td>`;
     const virtualMacCell=virtualMac?`<td class="t-mac" style="color:#d4a8ff">${virtualMac}<span class="copy-c" onclick="copyText(this,'${virtualMac}')">⧉</span></td>`:`<td class="t-na">—</td>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${modelCell}${fwCell}${virtualMacCell}`;
+    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${splitBrainCell}${fwCell}${virtualMacCell}`;
     tbody.appendChild(tr);
   });
-  document.getElementById('haStats').innerHTML=`<div class="stat-chip"><strong>${pairs.length}</strong> HA Pairs</div><div class="stat-chip ok"><strong>${ok}</strong> Healthy</div>${modelMismatch?`<div class="stat-chip warn"><strong>${modelMismatch}</strong> Regional Variant Mismatch</div>`:''}<div class="stat-chip bad"><strong>${fwMismatch}</strong> FW Mismatch</div><div class="stat-chip warn"><strong>${spareOffline}</strong> Spare Offline</div>`;
+  document.getElementById('haStats').innerHTML=`<div class="stat-chip"><strong>${pairs.length}</strong> HA Pairs</div><div class="stat-chip ok"><strong>${ok}</strong> Healthy</div>${modelMismatch?`<div class="stat-chip bad"><strong>${modelMismatch}</strong> Possible Split Brain</div>`:''}<div class="stat-chip bad"><strong>${fwMismatch}</strong> FW Mismatch</div><div class="stat-chip warn"><strong>${spareOffline}</strong> Spare Offline</div>`;
 }
 
 // Support Checklist
@@ -847,13 +854,16 @@ function renderChecklist(devices){
   const degraded=devices.filter(d=>{const u=uplinkLossMap[d.serial]||{};return(u.wan1Loss>=1&&u.wan1Loss<5)||(u.wan2Loss>=1&&u.wan2Loss<5);});
   checks.push({status:degraded.length?'warn':'pass',icon:degraded.length?'🟡':'✅',title:`${degraded.length} device${degraded.length!==1?'s':''} with degraded uplink loss 1–5%`,desc:'Moderate packet loss may indicate a marginal ISP circuit or intermittent issues. Monitor for escalation.',details:degraded.map(d=>{const u=uplinkLossMap[d.serial]||{};return`${d.name||d.serial} — WAN1: ${u.wan1Loss?.toFixed(1)||'—'}% WAN2: ${u.wan2Loss?.toFixed(1)||'—'}%`;})});
 
-  // 4. HA regional variant mismatch (different model families blocked by Dashboard — only regional variants possible)
-  const regionalMismatches=haPairs.filter(p=>{
-    const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];
-    if(!pri?.model||!spa?.model)return false;
-    return pri.model!==spa.model&&baseModel(pri.model)===baseModel(spa.model);
+  // 4. Potential HA split brain — both units online with spare showing active WAN
+  // Note: Meraki API does not directly expose HA active/passive role (MXIDEA-I-511)
+  // This is an inference based on both units being online + spare having active WAN
+  const splitBrainPairs=haPairs.filter(p=>{
+    const spaSt=(deviceStatusMap[p.spareSerial]||{}).status;
+    const priSt=(deviceStatusMap[p.primarySerial]||{}).status;
+    const spaWi=wanIpMap[p.spareSerial]||{};
+    return priSt==='online'&&spaSt==='online'&&spaWi.wan1Ip&&spaWi.wan1Status==='active';
   });
-  checks.push({status:regionalMismatches.length?'warn':'pass',icon:regionalMismatches.length?'⚠️':'✅',title:`${regionalMismatches.length} HA pair${regionalMismatches.length!==1?'s':''} with regional variant mismatch`,desc:'Same base model but different regional designations (e.g. MX67C-WW vs MX67C-NA) are not supported as HA pairs per Meraki documentation. The Dashboard may allow this but failover is not guaranteed.',details:regionalMismatches.map(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return`${networkMap[p.networkId]||p.networkId} — Primary: ${pri?.model||'—'} vs Spare: ${spa?.model||'—'}`;})});
+  checks.push({status:splitBrainPairs.length?'fail':'pass',icon:splitBrainPairs.length?'🔴':'✅',title:`${splitBrainPairs.length} HA pair${splitBrainPairs.length!==1?'s':''} with possible split brain`,desc:'Both the primary and spare appear to be active simultaneously. This is the most critical HA failure — both units forwarding traffic causes DHCP conflicts, routing loops, and VPN instability. Note: The Meraki API does not expose HA role directly so this is inferred from uplink status. Verify immediately in the Dashboard under Appliance Status.',details:splitBrainPairs.map(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return`${networkMap[p.networkId]||p.networkId} — Primary: ${pri?.name||p.primarySerial} · Spare: ${spa?.name||p.spareSerial}`;})});
 
   // 5. HA firmware mismatch
   const fwMismatches=haPairs.filter(p=>{const pri=devBySerial[p.primarySerial],spa=devBySerial[p.spareSerial];return pri?.firmware&&spa?.firmware&&pri.firmware!==spa.firmware;});
