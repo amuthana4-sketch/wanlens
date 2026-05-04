@@ -464,8 +464,74 @@ footer a{color:var(–accent);text-decoration:none;}
     <strong style="color:var(--accent)">WAN Lens</strong> — Supplemental visibility for Cisco Meraki MX<br>
     MAC offsets from <a href="https://documentation.meraki.com/SASE_and_SD-WAN/MX/Operate_and_Maintain/How-Tos/Calculating_MX_WAN_MAC_Addresses" target="_blank">Cisco Meraki Docs</a> ·
     Geolocation by <a href="https://ip-api.com" target="_blank">ip-api.com</a> ·
-    No data stored or transmitted through this server
+    No data stored or transmitted through this server<br><br>
+    <button onclick="openFeedback()" style="padding:8px 20px;background:rgba(0,198,255,0.1);border:1px solid rgba(0,198,255,0.3);border-radius:20px;color:var(--accent);font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:background 0.2s;">💬 Send Feedback</button>
   </footer>
+</div>
+
+<!-- Feedback Modal -->
+
+<div id="feedbackOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);" onclick="closeFeedbackOutside(event)">
+  <div style="background:#111722;border:1px solid #1e2d45;border-radius:16px;padding:32px;width:100%;max-width:480px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.6);position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#d8e4f0">💬 Send Feedback</div>
+        <div style="font-size:12px;color:#5a7a9a;margin-top:2px">Help improve WAN Lens</div>
+      </div>
+      <button onclick="closeFeedback()" style="background:none;border:none;color:#5a7a9a;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;">✕</button>
+    </div>
+
+```
+<!-- Netlify form — data-netlify="true" enables Netlify form handling -->
+<form name="wanlens-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleFeedback(event)">
+  <input type="hidden" name="form-name" value="wanlens-feedback">
+  <input type="hidden" name="bot-field" style="display:none">
+
+  <div style="margin-bottom:14px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Your Name</label>
+    <input type="text" name="name" placeholder="Your name" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;outline:none;">
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Your Email (optional)</label>
+    <input type="email" name="email" placeholder="your@email.com" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;outline:none;">
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Feedback Type</label>
+    <div style="position:relative;">
+      <select name="type" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Barlow',sans-serif;font-size:14px;padding:10px 32px 10px 14px;outline:none;appearance:none;cursor:pointer;">
+        <option value="general">General Feedback</option>
+        <option value="bug">Bug Report</option>
+        <option value="feature">Feature Request</option>
+        <option value="data">Incorrect Data</option>
+        <option value="other">Other</option>
+      </select>
+      <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#5a7a9a;pointer-events:none;">▾</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Message <span style="color:#ff4d6a">*</span></label>
+    <textarea name="message" placeholder="Tell me what you think, what's broken, or what you'd like to see added…" required rows="4" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Barlow',sans-serif;font-size:14px;padding:10px 14px;outline:none;resize:vertical;min-height:100px;"></textarea>
+  </div>
+
+  <div style="display:flex;gap:10px;">
+    <button type="submit" style="flex:1;padding:12px;background:linear-gradient(135deg,#0072ff,#00c6ff);border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,114,255,0.4);">Send Feedback</button>
+    <button type="button" onclick="closeFeedback()" style="padding:12px 20px;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#5a7a9a;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+  </div>
+</form>
+
+<!-- Success message -->
+<div id="feedbackSuccess" style="display:none;text-align:center;padding:20px 0;">
+  <div style="font-size:40px;margin-bottom:12px;">✅</div>
+  <div style="font-size:16px;font-weight:700;color:#d8e4f0;margin-bottom:8px;">Thank you for your feedback!</div>
+  <div style="font-size:13px;color:#5a7a9a;margin-bottom:20px;">Your message has been sent to the WAN Lens team.</div>
+  <button onclick="closeFeedback()" style="padding:10px 24px;background:linear-gradient(135deg,#0072ff,#00c6ff);border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Close</button>
+</div>
+```
+
+  </div>
 </div>
 
 <script>
@@ -957,6 +1023,25 @@ function exportUplinkCSV(){const rows=[['Device','Network','WAN 1 IP','WAN 1 Los
 function dlCSV(rows,name){const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`${name}-${new Date().toISOString().slice(0,10)}.csv`;a.click();}
 function copyAll(){const rows=allDevices.map(d=>{const mk=getMK(d.model),off=OFFSETS[mk],mac=nMAC(d.mac||''),w=wanIpMap[d.serial]||{},ds=deviceStatusMap[d.serial]||{};return[d.name||'',d.model,ds.status||'',mac&&off.wan1!==null?addOff(mac,off.wan1):'N/A',mac&&off.wan2!==null?addOff(mac,off.wan2):'N/A',w.wan1Ip||'—',w.wan2Ip||'—'].join('\t');});navigator.clipboard.writeText(rows.join('\n'));}
 function copyText(el,text){navigator.clipboard.writeText(text).then(()=>{el.classList.add('copied');const o=el.textContent;el.textContent='✓';setTimeout(()=>{el.textContent=o;el.classList.remove('copied');},1500);});}
+function openFeedback(){document.getElementById('feedbackOverlay').style.display='flex';document.getElementById('feedbackSuccess').style.display='none';document.querySelector('#feedbackOverlay form').style.display='block';}
+function closeFeedback(){document.getElementById('feedbackOverlay').style.display='none';}
+function closeFeedbackOutside(e){if(e.target===document.getElementById('feedbackOverlay'))closeFeedback();}
+function handleFeedback(e){
+  e.preventDefault();
+  const form=e.target;
+  const data=new FormData(form);
+  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data).toString()})
+  .then(()=>{
+    form.style.display='none';
+    document.getElementById('feedbackSuccess').style.display='block';
+  })
+  .catch(()=>{
+    const name=data.get('name')||'';
+    const type=data.get('type')||'';
+    const msg=data.get('message')||'';
+    window.location.href=`mailto:amuthana@abdullabs.com?subject=WAN Lens Feedback - ${type}&body=${encodeURIComponent(`Name: ${name}\n\nMessage:\n${msg}`)}`;
+  });
+}
 document.getElementById('apiKey').addEventListener('keydown',e=>{if(e.key==='Enter')fetchOrganizations();});
 </script>
 
