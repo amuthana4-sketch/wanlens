@@ -469,6 +469,17 @@ footer a{color:var(–accent);text-decoration:none;}
   </footer>
 </div>
 
+<!-- Hidden static form for Netlify form detection at deploy time -->
+
+<form name="wanlens-feedback" data-netlify="true" netlify-honeypot="bot-field" style="display:none">
+  <input type="hidden" name="form-name" value="wanlens-feedback">
+  <input type="text" name="name">
+  <input type="email" name="email">
+  <input type="text" name="type">
+  <textarea name="message"></textarea>
+  <input name="bot-field">
+</form>
+
 <!-- Feedback Modal -->
 
 <div id="feedbackOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);" onclick="closeFeedbackOutside(event)">
