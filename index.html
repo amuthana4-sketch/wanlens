@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -17,63 +18,63 @@ body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-
 /* Header */
 header{text-align:center;margin-bottom:40px;}
 .logo-mark{display:inline-flex;align-items:center;gap:12px;margin-bottom:16px;}
-.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,198,255,0.5);position:relative;overflow:hidden;}
-.logo-icon::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);}
+.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(–accent2),var(–accent));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,198,255,0.5);position:relative;overflow:hidden;}
+.logo-icon::before{content:’’;position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);}
 .logo-icon svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .logo-text-wrap{text-align:left;}
-.logo-name{font-size:28px;font-weight:700;background:linear-gradient(120deg,#fff 40%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
-.logo-tagline{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
-.subtitle{color:var(--muted);font-size:14px;font-weight:300;letter-spacing:0.5px;}
-.powered-by{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;}
-.powered-by span{color:var(--accent);}
+.logo-name{font-size:28px;font-weight:700;background:linear-gradient(120deg,#fff 40%,var(–accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.logo-tagline{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(–muted);margin-top:2px;}
+.subtitle{color:var(–muted);font-size:14px;font-weight:300;letter-spacing:0.5px;}
+.powered-by{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;color:var(–muted);background:var(–surface);border:1px solid var(–border);border-radius:20px;padding:4px 12px;}
+.powered-by span{color:var(–accent);}
 
 /* Tabs */
-.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px;}
-.tab{flex:1;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;white-space:nowrap;opacity:0.65;}
+.tabs{display:flex;gap:4px;background:var(–surface);border:1px solid var(–border);border-radius:12px;padding:4px;margin-bottom:24px;}
+.tab{flex:1;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(–text);font-family:var(–sans);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;white-space:nowrap;opacity:0.65;}
 .tab:hover{opacity:1;background:rgba(255,255,255,0.05);}
-.tab.active{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;box-shadow:0 2px 12px rgba(0,114,255,0.3);}
+.tab.active{background:linear-gradient(135deg,var(–accent2),var(–accent));color:#fff;box-shadow:0 2px 12px rgba(0,114,255,0.3);}
 .tab-content{display:none;}.tab-content.active{display:block;}
 
 /* Card */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 4px 40px rgba(0,0,0,0.4);}
-.card-title{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
-.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.card{background:var(–surface);border:1px solid var(–border);border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 4px 40px rgba(0,0,0,0.4);}
+.card-title{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(–accent);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.card-title::after{content:’’;flex:1;height:1px;background:var(–border);}
 
 /* Form */
 .field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
-input,select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:15px;padding:12px 16px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;appearance:none;}
-input::placeholder{color:var(--muted);opacity:0.6;}
-input:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,114,255,0.15);}
-.hint{font-size:11px;color:var(--muted);font-family:var(--mono);min-height:16px;}
-.hint.err{color:var(--danger);}
+label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(–muted);}
+input,select{background:var(–surface2);border:1px solid var(–border);border-radius:8px;color:var(–text);font-family:var(–mono);font-size:15px;padding:12px 16px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;appearance:none;}
+input::placeholder{color:var(–muted);opacity:0.6;}
+input:focus,select:focus{border-color:var(–accent2);box-shadow:0 0 0 3px rgba(0,114,255,0.15);}
+.hint{font-size:11px;color:var(–muted);font-family:var(–mono);min-height:16px;}
+.hint.err{color:var(–danger);}
 .select-wrap{position:relative;}
-.select-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
-select{cursor:pointer;}select option{background:var(--surface2);}
-.btn{width:100% !important;padding:14px 24px !important;background:linear-gradient(135deg,#0072ff,#00c6ff) !important;border:none !important;border-radius:10px !important;color:#fff !important;font-family:'Barlow',sans-serif !important;font-size:15px !important;font-weight:700 !important;letter-spacing:1px !important;cursor:pointer !important;box-shadow:0 4px 20px rgba(0,114,255,0.6) !important;text-transform:uppercase !important;transition:transform 0.15s,box-shadow 0.15s !important;}
+.select-wrap::after{content:‘▾’;position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(–muted);pointer-events:none;}
+select{cursor:pointer;}select option{background:var(–surface2);}
+.btn{width:100% !important;padding:14px 24px !important;background:linear-gradient(135deg,#0072ff,#00c6ff) !important;border:none !important;border-radius:10px !important;color:#fff !important;font-family:‘Barlow’,sans-serif !important;font-size:15px !important;font-weight:700 !important;letter-spacing:1px !important;cursor:pointer !important;box-shadow:0 4px 20px rgba(0,114,255,0.6) !important;text-transform:uppercase !important;transition:transform 0.15s,box-shadow 0.15s !important;}
 .btn:hover:not(:disabled){transform:translateY(-2px) !important;box-shadow:0 8px 30px rgba(0,114,255,0.8) !important;}
 .btn:disabled{opacity:0.35 !important;cursor:not-allowed !important;}
-.fetch-btn{padding:12px 20px !important;background:linear-gradient(135deg,#0072ff,#00c6ff) !important;border:none !important;border-radius:8px !important;color:#fff !important;font-family:'Barlow',sans-serif !important;font-size:14px !important;font-weight:700 !important;cursor:pointer !important;white-space:nowrap !important;flex-shrink:0 !important;box-shadow:0 4px 16px rgba(0,114,255,0.5) !important;}
+.fetch-btn{padding:12px 20px !important;background:linear-gradient(135deg,#0072ff,#00c6ff) !important;border:none !important;border-radius:8px !important;color:#fff !important;font-family:‘Barlow’,sans-serif !important;font-size:14px !important;font-weight:700 !important;cursor:pointer !important;white-space:nowrap !important;flex-shrink:0 !important;box-shadow:0 4px 16px rgba(0,114,255,0.5) !important;}
 .fetch-btn:disabled{opacity:0.35 !important;cursor:not-allowed !important;}
-.action-btn{padding:10px 18px !important;border:1px solid #00c6ff !important;border-radius:8px !important;background:rgba(0,114,255,0.2) !important;color:#00c6ff !important;font-family:'Barlow',sans-serif !important;font-size:13px !important;font-weight:600 !important;cursor:pointer !important;white-space:nowrap !important;}
+.action-btn{padding:10px 18px !important;border:1px solid #00c6ff !important;border-radius:8px !important;background:rgba(0,114,255,0.2) !important;color:#00c6ff !important;font-family:‘Barlow’,sans-serif !important;font-size:13px !important;font-weight:600 !important;cursor:pointer !important;white-space:nowrap !important;}
 .action-btn:hover{background:rgba(0,114,255,0.4) !important;color:#fff !important;}
-.export-btn{padding:9px 18px !important;border:1px solid #0072ff !important;border-radius:8px !important;background:rgba(0,114,255,0.15) !important;color:#00c6ff !important;font-family:'Barlow',sans-serif !important;font-size:13px !important;font-weight:600 !important;cursor:pointer !important;}
+.export-btn{padding:9px 18px !important;border:1px solid #0072ff !important;border-radius:8px !important;background:rgba(0,114,255,0.15) !important;color:#00c6ff !important;font-family:‘Barlow’,sans-serif !important;font-size:13px !important;font-weight:600 !important;cursor:pointer !important;}
 .export-btn:hover{background:rgba(0,114,255,0.3) !important;color:#fff !important;}
-.snap-btn{padding:12px 24px !important;background:linear-gradient(135deg,#0072ff,#00c6ff) !important;border:none !important;border-radius:10px !important;color:#fff !important;font-family:'Barlow',sans-serif !important;font-size:14px !important;font-weight:700 !important;cursor:pointer !important;box-shadow:0 4px 20px rgba(0,114,255,0.5) !important;}
+.snap-btn{padding:12px 24px !important;background:linear-gradient(135deg,#0072ff,#00c6ff) !important;border:none !important;border-radius:10px !important;color:#fff !important;font-family:‘Barlow’,sans-serif !important;font-size:14px !important;font-weight:700 !important;cursor:pointer !important;box-shadow:0 4px 20px rgba(0,114,255,0.5) !important;}
 .snap-btn.sec{background:rgba(0,114,255,0.15) !important;border:1px solid #0072ff !important;color:#00c6ff !important;box-shadow:none !important;}
 .snap-btn.sec:hover{background:rgba(0,114,255,0.3) !important;color:#fff !important;}
 
 /* Status */
 .status-msg{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;animation:fadeIn 0.3s ease;}
-.status-msg.loading{background:rgba(0,198,255,0.08);border:1px solid rgba(0,198,255,0.2);color:var(--accent);}
-.status-msg.error{background:rgba(255,77,106,0.08);border:1px solid rgba(255,77,106,0.2);color:var(--danger);}
-.status-msg.success{background:rgba(0,232,150,0.08);border:1px solid rgba(0,232,150,0.2);color:var(--success);}
-.spinner{width:16px;height:16px;border:2px solid rgba(0,198,255,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
+.status-msg.loading{background:rgba(0,198,255,0.08);border:1px solid rgba(0,198,255,0.2);color:var(–accent);}
+.status-msg.error{background:rgba(255,77,106,0.08);border:1px solid rgba(255,77,106,0.2);color:var(–danger);}
+.status-msg.success{background:rgba(0,232,150,0.08);border:1px solid rgba(0,232,150,0.2);color:var(–success);}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,198,255,0.3);border-top-color:var(–accent);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.progress-wrap{background:var(--surface2);border-radius:20px;height:4px;overflow:hidden;margin-top:8px;}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:20px;transition:width 0.3s ease;width:0%;}
-.progress-label{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:6px;}
+.progress-wrap{background:var(–surface2);border-radius:20px;height:4px;overflow:hidden;margin-top:8px;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(–accent2),var(–accent));border-radius:20px;transition:width 0.3s ease;width:0%;}
+.progress-label{font-size:11px;color:var(–muted);font-family:var(–mono);margin-top:6px;}
 
 /* Org selector — simplified single select */
 .org-section{margin-top:16px;}
@@ -82,119 +83,119 @@ select{cursor:pointer;}select option{background:var(--surface2);}
 .controls-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
 .search-wrap{flex:1;min-width:200px;position:relative;}
 .search-wrap input{padding-left:36px;font-size:13px;}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(–muted);pointer-events:none;}
 .filter-select{width:auto;min-width:180px;padding:10px 32px 10px 12px;font-size:13px;}
-.action-btn{padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;white-space:nowrap;}
-.action-btn:hover{border-color:var(--accent);color:var(--accent);}
-.auto-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.action-btn{padding:10px 16px;border:1px solid var(–border);border-radius:8px;background:var(–surface2);color:var(–text);font-family:var(–sans);font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;white-space:nowrap;}
+.action-btn:hover{border-color:var(–accent);color:var(–accent);}
+.auto-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(–muted);}
 .auto-wrap select{width:auto;padding:8px 28px 8px 10px;font-size:12px;}
 
 /* Stats */
 .stats-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
-.stat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:6px;}
-.stat-chip strong{font-family:var(--mono);color:var(--accent);font-size:16px;}
-.stat-chip.ok strong{color:var(--success);}
-.stat-chip.bad strong{color:var(--danger);}
-.stat-chip.warn strong{color:var(--warn);}
+.stat-chip{background:var(–surface2);border:1px solid var(–border);border-radius:8px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:6px;}
+.stat-chip strong{font-family:var(–mono);color:var(–accent);font-size:16px;}
+.stat-chip.ok strong{color:var(–success);}
+.stat-chip.bad strong{color:var(–danger);}
+.stat-chip.warn strong{color:var(–warn);}
 
 /* Table */
-.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(–border);}
 table{width:100%;border-collapse:collapse;font-size:12px;}
-thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
-th{padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-th.c-wan1{color:var(--accent)!important;}th.c-wan2{color:#6ab0ff!important;}th.c-wan3{color:var(--warn)!important;}
+thead tr{background:var(–surface2);border-bottom:1px solid var(–border);}
+th{padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(–muted);white-space:nowrap;}
+th.c-wan1{color:var(–accent)!important;}th.c-wan2{color:#6ab0ff!important;}th.c-wan3{color:var(–warn)!important;}
 th.c-ip1{color:#7dffcb!important;}th.c-ip2{color:#a8d4ff!important;}
 th.c-geo{color:#d4a8ff!important;}th.c-fw{color:#ffd4a8!important;}
-th.c-loss{color:var(--danger)!important;}th.c-lat{color:var(--warn)!important;}
+th.c-loss{color:var(–danger)!important;}th.c-lat{color:var(–warn)!important;}
 th.c-ha{color:#ffaad4!important;}
 tbody tr{border-bottom:1px solid rgba(30,45,69,0.6);transition:background 0.15s;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{background:rgba(0,198,255,0.03);}
-td{padding:8px 10px;font-family:var(--mono);font-size:12px;vertical-align:middle;}
-td.t-name{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;}
-td.t-model span{background:rgba(0,114,255,0.15);border:1px solid rgba(0,114,255,0.25);color:#6ab0ff;padding:2px 7px;border-radius:20px;font-size:11px;font-family:var(--sans);font-weight:600;}
-td.t-net{color:var(--muted);font-size:11px;font-family:var(--sans);}
-td.t-mac{color:var(--text);letter-spacing:0.3px;}
-td.t-w1m{color:var(--accent);}td.t-w2m{color:#6ab0ff;}td.t-w3m{color:var(--warn);}
-td.t-na{color:var(--muted);font-size:11px;}
+td{padding:8px 10px;font-family:var(–mono);font-size:12px;vertical-align:middle;}
+td.t-name{font-family:var(–sans);font-size:13px;font-weight:600;color:var(–text);white-space:nowrap;}
+td.t-model span{background:rgba(0,114,255,0.15);border:1px solid rgba(0,114,255,0.25);color:#6ab0ff;padding:2px 7px;border-radius:20px;font-size:11px;font-family:var(–sans);font-weight:600;}
+td.t-net{color:var(–muted);font-size:11px;font-family:var(–sans);}
+td.t-mac{color:var(–text);letter-spacing:0.3px;}
+td.t-w1m{color:var(–accent);}td.t-w2m{color:#6ab0ff;}td.t-w3m{color:var(–warn);}
+td.t-na{color:var(–muted);font-size:11px;}
 td.t-ip1{color:#7dffcb;}td.t-ip2{color:#a8d4ff;}
 td.t-geo{color:#d4a8ff;font-size:11px;}td.t-fw{color:#ffd4a8;font-size:11px;}
-td.t-lastseen{color:var(--muted);font-size:11px;}
+td.t-lastseen{color:var(–muted);font-size:11px;}
 .ddot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;}
-.ddot.online{background:var(--success);box-shadow:0 0 5px var(--success);}
-.ddot.offline{background:var(--danger);}
-.ddot.alerting{background:var(--warn);box-shadow:0 0 5px var(--warn);}
-.ddot.unknown,.ddot.dormant{background:var(--muted);}
-.uplink-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;font-family:var(--sans);font-weight:700;margin-left:4px;}
-.uplink-badge.primary{background:rgba(0,232,150,0.15);color:var(--success);border:1px solid rgba(0,232,150,0.3);}
-.uplink-badge.failover{background:rgba(255,181,71,0.15);color:var(--warn);border:1px solid rgba(255,181,71,0.3);}
-.ha-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;font-family:var(--sans);font-weight:700;background:rgba(255,170,212,0.15);color:#ffaad4;border:1px solid rgba(255,170,212,0.3);margin-left:4px;}
+.ddot.online{background:var(–success);box-shadow:0 0 5px var(–success);}
+.ddot.offline{background:var(–danger);}
+.ddot.alerting{background:var(–warn);box-shadow:0 0 5px var(–warn);}
+.ddot.unknown,.ddot.dormant{background:var(–muted);}
+.uplink-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;font-family:var(–sans);font-weight:700;margin-left:4px;}
+.uplink-badge.primary{background:rgba(0,232,150,0.15);color:var(–success);border:1px solid rgba(0,232,150,0.3);}
+.uplink-badge.failover{background:rgba(255,181,71,0.15);color:var(–warn);border:1px solid rgba(255,181,71,0.3);}
+.ha-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;font-family:var(–sans);font-weight:700;background:rgba(255,170,212,0.15);color:#ffaad4;border:1px solid rgba(255,170,212,0.3);margin-left:4px;}
 
 /* Loss pill */
-.loss-pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-family:var(--mono);font-weight:600;}
-.loss-pill.good{background:rgba(0,232,150,0.1);color:var(--success);border:1px solid rgba(0,232,150,0.2);}
-.loss-pill.warn{background:rgba(255,181,71,0.1);color:var(--warn);border:1px solid rgba(255,181,71,0.2);}
-.loss-pill.bad{background:rgba(255,77,106,0.1);color:var(--danger);border:1px solid rgba(255,77,106,0.2);}
-.loss-pill.na{background:rgba(90,122,154,0.1);color:var(--muted);border:1px solid rgba(90,122,154,0.2);}
+.loss-pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-family:var(–mono);font-weight:600;}
+.loss-pill.good{background:rgba(0,232,150,0.1);color:var(–success);border:1px solid rgba(0,232,150,0.2);}
+.loss-pill.warn{background:rgba(255,181,71,0.1);color:var(–warn);border:1px solid rgba(255,181,71,0.2);}
+.loss-pill.bad{background:rgba(255,77,106,0.1);color:var(–danger);border:1px solid rgba(255,77,106,0.2);}
+.loss-pill.na{background:rgba(90,122,154,0.1);color:var(–muted);border:1px solid rgba(90,122,154,0.2);}
 
 /* ISP */
 .isp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
-.isp-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.isp-card{background:var(–surface2);border:1px solid var(–border);border-radius:12px;padding:18px;}
 .isp-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
-.isp-name{font-size:14px;font-weight:700;color:var(--text);}
-.isp-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.isp-count{font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0;}
-.isp-avg{font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:10px;}
-.isp-avg span{color:var(--accent);}
+.isp-name{font-size:14px;font-weight:700;color:var(–text);}
+.isp-sub{font-size:11px;color:var(–muted);margin-top:2px;}
+.isp-count{font-size:11px;color:var(–muted);font-family:var(–mono);flex-shrink:0;}
+.isp-avg{font-size:12px;color:var(–muted);font-family:var(–mono);margin-bottom:10px;}
+.isp-avg span{color:var(–accent);}
 .isp-sites{display:flex;flex-wrap:wrap;gap:4px;}
-.isp-site{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;gap:4px;}
+.isp-site{font-size:11px;padding:2px 8px;border-radius:20px;background:var(–surface);border:1px solid var(–border);display:inline-flex;align-items:center;gap:4px;}
 
 /* Support checklist */
 .check-list{display:flex;flex-direction:column;gap:12px;}
-.check-item{padding:16px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);display:flex;gap:14px;align-items:flex-start;}
+.check-item{padding:16px 18px;border-radius:12px;border:1px solid var(–border);background:var(–surface2);display:flex;gap:14px;align-items:flex-start;}
 .check-item.pass{border-color:rgba(0,232,150,0.25);background:rgba(0,232,150,0.03);}
 .check-item.fail{border-color:rgba(255,77,106,0.25);background:rgba(255,77,106,0.03);}
 .check-item.warn{border-color:rgba(255,181,71,0.25);background:rgba(255,181,71,0.03);}
 .check-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
 .check-body{flex:1;}
-.check-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.check-desc{font-size:12px;color:var(--muted);line-height:1.6;}
-.check-detail{margin-top:8px;font-size:11px;font-family:var(--mono);color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;max-height:120px;overflow-y:auto;}
+.check-title{font-size:13px;font-weight:700;color:var(–text);margin-bottom:4px;}
+.check-desc{font-size:12px;color:var(–muted);line-height:1.6;}
+.check-detail{margin-top:8px;font-size:11px;font-family:var(–mono);color:var(–text);background:var(–surface);border:1px solid var(–border);border-radius:6px;padding:8px 12px;max-height:120px;overflow-y:auto;}
 .check-detail div{padding:2px 0;border-bottom:1px solid rgba(30,45,69,0.4);}
 .check-detail div:last-child{border-bottom:none;}
 
 /* Snapshot */
 .snap-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
-.meta-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
-.meta-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px;}
-.meta-value{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);}
-.meta-value.ok{color:var(--success);}
-.meta-value.bad{color:var(--danger);}
-.meta-value.warn{color:var(--warn);}
+.meta-item{background:var(–surface2);border:1px solid var(–border);border-radius:8px;padding:12px 14px;}
+.meta-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(–muted);margin-bottom:4px;}
+.meta-value{font-size:18px;font-weight:700;font-family:var(–mono);color:var(–text);}
+.meta-value.ok{color:var(–success);}
+.meta-value.bad{color:var(–danger);}
+.meta-value.warn{color:var(–warn);}
 .snap-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
-.snap-btn{padding:12px 24px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:transform 0.15s;box-shadow:0 4px 20px rgba(0,114,255,0.3);}
+.snap-btn{padding:12px 24px;background:linear-gradient(135deg,var(–accent2),var(–accent));border:none;border-radius:10px;color:#fff;font-family:var(–sans);font-size:14px;font-weight:700;cursor:pointer;transition:transform 0.15s;box-shadow:0 4px 20px rgba(0,114,255,0.3);}
 .snap-btn:hover{transform:translateY(-1px);}
-.snap-btn.sec{background:var(--surface2);border:1px solid var(--border);color:var(--text);box-shadow:none;}
-.snap-includes{font-size:12px;color:var(--muted);line-height:2;}
+.snap-btn.sec{background:var(–surface2);border:1px solid var(–border);color:var(–text);box-shadow:none;}
+.snap-includes{font-size:12px;color:var(–muted);line-height:2;}
 
 /* Manual */
 .result-grid{display:grid;gap:10px;}
-.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;overflow:hidden;}
-.result-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
-.result-item.wan1::before{background:var(--accent);}
-.result-item.wan2::before{background:var(--accent2);}
-.result-item.wan3::before{background:var(--warn);}
+.result-item{background:var(–surface2);border:1px solid var(–border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;overflow:hidden;}
+.result-item::before{content:’’;position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.result-item.wan1::before{background:var(–accent);}
+.result-item.wan2::before{background:var(–accent2);}
+.result-item.wan3::before{background:var(–warn);}
 .result-item.na{opacity:0.4;}
-.result-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);min-width:55px;}
-.result-mac{font-family:var(--mono);font-size:16px;flex:1;text-align:center;}
-.offset-badge{font-family:var(--mono);font-size:11px;background:rgba(0,198,255,0.1);border:1px solid rgba(0,198,255,0.2);color:var(--accent);padding:2px 9px;border-radius:20px;}
+.result-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(–muted);min-width:55px;}
+.result-mac{font-family:var(–mono);font-size:16px;flex:1;text-align:center;}
+.offset-badge{font-family:var(–mono);font-size:11px;background:rgba(0,198,255,0.1);border:1px solid rgba(0,198,255,0.2);color:var(–accent);padding:2px 9px;border-radius:20px;}
 .result-item.wan2 .offset-badge{background:rgba(0,114,255,0.1);border-color:rgba(0,114,255,0.2);color:#6ab0ff;}
-.result-item.wan3 .offset-badge{background:rgba(255,181,71,0.1);border-color:rgba(255,181,71,0.2);color:var(--warn);}
-.copy-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:12px;padding:3px 8px;transition:color 0.15s,border-color 0.15s;}
-.copy-btn:hover{color:var(--text);border-color:var(--muted);}
-.copy-btn.copied{color:var(--success);border-color:var(--success);}
-.base-echo{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:14px;padding:8px 14px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid var(--border);}
-.base-echo span{color:var(--text);}
+.result-item.wan3 .offset-badge{background:rgba(255,181,71,0.1);border-color:rgba(255,181,71,0.2);color:var(–warn);}
+.copy-btn{background:none;border:1px solid var(–border);border-radius:6px;color:var(–muted);cursor:pointer;font-size:12px;padding:3px 8px;transition:color 0.15s,border-color 0.15s;}
+.copy-btn:hover{color:var(–text);border-color:var(–muted);}
+.copy-btn.copied{color:var(–success);border-color:var(–success);}
+.base-echo{font-family:var(–mono);font-size:12px;color:var(–muted);margin-bottom:14px;padding:8px 14px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid var(–border);}
+.base-echo span{color:var(–text);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:500px){.form-row{grid-template-columns:1fr;}}
 .full{grid-column:1/-1;}
@@ -202,26 +203,27 @@ td.t-lastseen{color:var(--muted);font-size:11px;}
 .results-section.visible{display:block;}
 
 /* Misc */
-.copy-c{cursor:pointer;color:var(--muted);transition:color 0.15s;user-select:none;font-size:11px;margin-left:3px;}
-.copy-c:hover{color:var(--accent);}.copy-c.copied{color:var(--success);}
+.copy-c{cursor:pointer;color:var(–muted);transition:color 0.15s;user-select:none;font-size:11px;margin-left:3px;}
+.copy-c:hover{color:var(–accent);}.copy-c.copied{color:var(–success);}
 .ip-cell{display:flex;align-items:center;gap:4px;}
 .sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.sdot.up{background:var(--success);box-shadow:0 0 4px var(--success);}
-.sdot.down{background:var(--danger);}.sdot.uk{background:var(--muted);}
+.sdot.up{background:var(–success);box-shadow:0 0 4px var(–success);}
+.sdot.down{background:var(–danger);}.sdot.uk{background:var(–muted);}
 .export-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.export-btn{padding:9px 18px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;}
-.export-btn:hover{border-color:var(--accent);color:var(--accent);}
-.last-updated{font-size:11px;color:var(--muted);font-family:var(--mono);margin-left:auto;}
-.security-note{font-size:12px;color:var(--muted);padding:10px 14px;background:rgba(0,232,150,0.05);border:1px solid rgba(0,232,150,0.15);border-radius:8px;margin-bottom:16px;line-height:1.6;}
-.security-note strong{color:var(--success);}
-.notice{font-size:12px;color:var(--muted);padding:10px 14px;background:rgba(0,114,255,0.05);border:1px solid rgba(0,114,255,0.15);border-radius:8px;margin-bottom:16px;line-height:1.6;}
-.notice strong{color:var(--accent);}
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
+.export-btn{padding:9px 18px;border:1px solid var(–border);border-radius:8px;background:var(–surface2);color:var(–text);font-family:var(–sans);font-size:13px;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;}
+.export-btn:hover{border-color:var(–accent);color:var(–accent);}
+.last-updated{font-size:11px;color:var(–muted);font-family:var(–mono);margin-left:auto;}
+.security-note{font-size:12px;color:var(–muted);padding:10px 14px;background:rgba(0,232,150,0.05);border:1px solid rgba(0,232,150,0.15);border-radius:8px;margin-bottom:16px;line-height:1.6;}
+.security-note strong{color:var(–success);}
+.notice{font-size:12px;color:var(–muted);padding:10px 14px;background:rgba(0,114,255,0.05);border:1px solid rgba(0,114,255,0.15);border-radius:8px;margin-bottom:16px;line-height:1.6;}
+.notice strong{color:var(–accent);}
+.empty-state{text-align:center;padding:40px 20px;color:var(–muted);font-size:14px;}
 .empty-state .icon{font-size:32px;margin-bottom:10px;}
-footer{text-align:center;margin-top:40px;font-size:12px;color:var(--muted);line-height:1.8;}
-footer a{color:var(--accent);text-decoration:none;}
+footer{text-align:center;margin-top:40px;font-size:12px;color:var(–muted);line-height:1.8;}
+footer a{color:var(–accent);text-decoration:none;}
 .geo-flag{font-size:14px;margin-right:3px;}
 </style>
+
 </head>
 <body>
 <div class="container">
@@ -232,7 +234,7 @@ footer a{color:var(--accent);text-decoration:none;}
       </div>
       <div class="logo-text-wrap">
         <div class="logo-name">WAN Lens</div>
-        <div class="logo-tagline">Network Intelligence</div>
+        <div class="logo-tagline">Network Intelligence &nbsp;·&nbsp; v1.0</div>
       </div>
     </div>
     <p class="subtitle">Supplemental visibility for Cisco Meraki MX — filling the gaps the Dashboard doesn't show</p>
@@ -250,6 +252,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <!-- 1. MAC CALCULATOR -->
+
   <div class="tab-content active" id="tab-manual">
     <div class="card">
       <div class="card-title">WAN MAC Calculator — No API Key Required</div>
@@ -293,6 +296,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <!-- 2. WAN OVERVIEW -->
+
   <div class="tab-content" id="tab-api">
     <div class="card">
       <div class="card-title">Meraki API Connection</div>
@@ -323,43 +327,47 @@ footer a{color:var(--accent);text-decoration:none;}
       </div>
     </div>
 
-    <div id="apiResults" style="display:none">
-      <div class="card">
-        <div class="card-title">WAN Overview <span class="last-updated" id="lastUpdated"></span></div>
-        <div class="stats-bar" id="statsBar"></div>
-        <div class="controls-bar">
-          <div class="search-wrap">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="Search name, IP, MAC, serial, location, firmware…" oninput="filterTable()">
-          </div>
-          <div class="select-wrap">
-            <select id="networkFilter" class="filter-select" onchange="filterTable()">
-              <option value="">All Networks</option>
-            </select>
-          </div>
-          <button class="action-btn" onclick="refreshData()">↻ Refresh</button>
-          <div class="auto-wrap">Auto: <div class="select-wrap"><select id="autoRefreshSelect" onchange="setAutoRefresh()"><option value="0">Off</option><option value="60">1m</option><option value="300">5m</option><option value="600">10m</option></select></div></div>
-        </div>
-        <div class="table-wrap">
-          <table style="min-width:1200px">
-            <thead><tr>
-              <th>Status</th><th>Device</th><th>Model</th><th>Network</th>
-              <th>Base MAC</th><th class="c-wan1">WAN 1 MAC</th><th class="c-wan2">WAN 2 MAC</th><th class="c-wan3">WAN 3 MAC</th>
-              <th class="c-ip1">WAN 1 IP</th><th class="c-ip2">WAN 2 IP</th>
-              <th class="c-geo">Location / ISP</th><th class="c-fw">Firmware</th><th>Last Seen</th><th>Serial</th>
-            </tr></thead>
-            <tbody id="deviceTableBody"></tbody>
-          </table>
-        </div>
-        <div class="export-row">
-          <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
-          <button class="export-btn" onclick="copyAll()">📋 Copy All</button>
-        </div>
+```
+<div id="apiResults" style="display:none">
+  <div class="card">
+    <div class="card-title">WAN Overview <span class="last-updated" id="lastUpdated"></span></div>
+    <div class="stats-bar" id="statsBar"></div>
+    <div class="controls-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search name, IP, MAC, serial, location, firmware…" oninput="filterTable()">
       </div>
+      <div class="select-wrap">
+        <select id="networkFilter" class="filter-select" onchange="filterTable()">
+          <option value="">All Networks</option>
+        </select>
+      </div>
+      <button class="action-btn" onclick="refreshData()">↻ Refresh</button>
+      <div class="auto-wrap">Auto: <div class="select-wrap"><select id="autoRefreshSelect" onchange="setAutoRefresh()"><option value="0">Off</option><option value="60">1m</option><option value="300">5m</option><option value="600">10m</option></select></div></div>
     </div>
+    <div class="table-wrap">
+      <table style="min-width:1200px">
+        <thead><tr>
+          <th>Status</th><th>Device</th><th>Model</th><th>Network</th>
+          <th>Base MAC</th><th class="c-wan1">WAN 1 MAC</th><th class="c-wan2">WAN 2 MAC</th><th class="c-wan3">WAN 3 MAC</th>
+          <th class="c-ip1">WAN 1 IP</th><th class="c-ip2">WAN 2 IP</th>
+          <th class="c-geo">Location / ISP</th><th class="c-fw">Firmware</th><th>Last Seen</th><th>Serial</th>
+        </tr></thead>
+        <tbody id="deviceTableBody"></tbody>
+      </table>
+    </div>
+    <div class="export-row">
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="export-btn" onclick="copyAll()">📋 Copy All</button>
+    </div>
+  </div>
+</div>
+```
+
   </div>
 
   <!-- 3. UPLINK HEALTH -->
+
   <div class="tab-content" id="tab-uplink">
     <div class="card">
       <div class="notice"><strong>ℹ️</strong> Org-wide uplink packet loss and latency — not visible as a single view in the Meraki Dashboard. Load data from WAN Overview first.</div>
@@ -384,6 +392,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <!-- 4. ISP VIEW -->
+
   <div class="tab-content" id="tab-isp">
     <div class="card">
       <div class="notice"><strong>ℹ️</strong> Sites grouped by ISP — makes ISP-wide outages immediately visible. Load data from WAN Overview first.</div>
@@ -395,6 +404,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <!-- 5. HA PAIRS -->
+
   <div class="tab-content" id="tab-ha">
     <div class="card">
       <div class="notice"><strong>ℹ️</strong> HA warm spare validation including potential split brain detection, firmware mismatch, and spare offline checks. Split brain detection is inferred from uplink status — the Meraki API does not expose HA role directly. Always verify a flagged split brain in the Dashboard immediately. Load data from WAN Overview first.</div>
@@ -416,6 +426,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <!-- 6. SUPPORT CHECKS -->
+
   <div class="tab-content" id="tab-checklist">
     <div class="card">
       <div class="notice"><strong>ℹ️</strong> Automated checks surfacing issues that are not easily visible in the Dashboard. Load data from WAN Overview first.</div>
@@ -427,6 +438,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <!-- 7. SNAPSHOT -->
+
   <div class="tab-content" id="tab-snapshot">
     <div class="card">
       <div class="notice"><strong>ℹ️</strong> Share this snapshot with Meraki Support without sharing your API key. Contains all device data, health status, HA pairs, and checklist findings — never your API key.</div>
@@ -450,7 +462,7 @@ footer a{color:var(--accent);text-decoration:none;}
   </div>
 
   <footer>
-    <strong style="color:var(--accent)">WAN Lens</strong> — Supplemental visibility for Cisco Meraki MX<br>
+    <strong style="color:var(--accent)">WAN Lens</strong> <span style="color:var(--muted);font-size:11px">v1.0</span> — Supplemental visibility for Cisco Meraki MX<br>
     MAC offsets from <a href="https://documentation.meraki.com/SASE_and_SD-WAN/MX/Operate_and_Maintain/How-Tos/Calculating_MX_WAN_MAC_Addresses" target="_blank">Cisco Meraki Docs</a> ·
     Geolocation by <a href="https://ip-api.com" target="_blank">ip-api.com</a> ·
     No data stored or transmitted through this server<br><br>
@@ -458,7 +470,19 @@ footer a{color:var(--accent);text-decoration:none;}
   </footer>
 </div>
 
+<!-- Hidden static form for Netlify form detection at deploy time -->
+
+<form name="wanlens-feedback" data-netlify="true" netlify-honeypot="bot-field" style="display:none">
+  <input type="hidden" name="form-name" value="wanlens-feedback">
+  <input type="text" name="name">
+  <input type="email" name="email">
+  <input type="text" name="type">
+  <textarea name="message"></textarea>
+  <input name="bot-field">
+</form>
+
 <!-- Feedback Modal -->
+
 <div id="feedbackOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);" onclick="closeFeedbackOutside(event)">
   <div style="background:#111722;border:1px solid #1e2d45;border-radius:16px;padding:32px;width:100%;max-width:480px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.6);position:relative;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -469,55 +493,56 @@ footer a{color:var(--accent);text-decoration:none;}
       <button onclick="closeFeedback()" style="background:none;border:none;color:#5a7a9a;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;">✕</button>
     </div>
 
-    <!-- Web3Forms — free, no account needed, submissions emailed to amuthana@abdullabs.com -->
-    <form onsubmit="handleFeedback(event)">
-      <input type="hidden" name="access_key" value="71c637fa-fb0f-473f-a13b-9966abc2ff17">
-      <input type="hidden" name="subject" value="WAN Lens Feedback">
-      <input type="hidden" name="from_name" value="WAN Lens">
-      <input type="checkbox" name="botcheck" style="display:none">
+```
+<!-- Netlify form — data-netlify="true" enables Netlify form handling -->
+<form name="wanlens-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleFeedback(event)">
+  <input type="hidden" name="form-name" value="wanlens-feedback">
+  <input type="hidden" name="bot-field" style="display:none">
 
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Your Name</label>
-        <input type="text" name="name" placeholder="Your name" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;outline:none;">
-      </div>
+  <div style="margin-bottom:14px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Your Name</label>
+    <input type="text" name="name" placeholder="Your name" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;outline:none;">
+  </div>
 
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Your Email (optional)</label>
-        <input type="email" name="email" placeholder="your@email.com" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;outline:none;">
-      </div>
+  <div style="margin-bottom:14px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Your Email (optional)</label>
+    <input type="email" name="email" placeholder="your@email.com" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Share Tech Mono',monospace;font-size:14px;padding:10px 14px;outline:none;">
+  </div>
 
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Feedback Type</label>
-        <div style="position:relative;">
-          <select name="type" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Barlow',sans-serif;font-size:14px;padding:10px 32px 10px 14px;outline:none;appearance:none;cursor:pointer;">
-            <option value="general">General Feedback</option>
-            <option value="bug">Bug Report</option>
-            <option value="feature">Feature Request</option>
-            <option value="data">Incorrect Data</option>
-            <option value="other">Other</option>
-          </select>
-          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#5a7a9a;pointer-events:none;">▾</span>
-        </div>
-      </div>
-
-      <div style="margin-bottom:20px;">
-        <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Message <span style="color:#ff4d6a">*</span></label>
-        <textarea name="message" placeholder="Tell me what you think, what's broken, or what you'd like to see added…" required rows="4" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Barlow',sans-serif;font-size:14px;padding:10px 14px;outline:none;resize:vertical;min-height:100px;"></textarea>
-      </div>
-
-      <div style="display:flex;gap:10px;">
-        <button type="submit" style="flex:1;padding:12px;background:linear-gradient(135deg,#0072ff,#00c6ff);border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,114,255,0.4);">Send Feedback</button>
-        <button type="button" onclick="closeFeedback()" style="padding:12px 20px;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#5a7a9a;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
-      </div>
-    </form>
-
-    <!-- Success message -->
-    <div id="feedbackSuccess" style="display:none;text-align:center;padding:20px 0;">
-      <div style="font-size:40px;margin-bottom:12px;">✅</div>
-      <div style="font-size:16px;font-weight:700;color:#d8e4f0;margin-bottom:8px;">Thank you for your feedback!</div>
-      <div style="font-size:13px;color:#5a7a9a;margin-bottom:20px;">Your message has been sent to the WAN Lens team.</div>
-      <button onclick="closeFeedback()" style="padding:10px 24px;background:linear-gradient(135deg,#0072ff,#00c6ff);border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Close</button>
+  <div style="margin-bottom:14px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Feedback Type</label>
+    <div style="position:relative;">
+      <select name="type" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Barlow',sans-serif;font-size:14px;padding:10px 32px 10px 14px;outline:none;appearance:none;cursor:pointer;">
+        <option value="general">General Feedback</option>
+        <option value="bug">Bug Report</option>
+        <option value="feature">Feature Request</option>
+        <option value="data">Incorrect Data</option>
+        <option value="other">Other</option>
+      </select>
+      <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#5a7a9a;pointer-events:none;">▾</span>
     </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <label style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5a7a9a;display:block;margin-bottom:6px;">Message <span style="color:#ff4d6a">*</span></label>
+    <textarea name="message" placeholder="Tell me what you think, what's broken, or what you'd like to see added…" required rows="4" style="width:100%;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#d8e4f0;font-family:'Barlow',sans-serif;font-size:14px;padding:10px 14px;outline:none;resize:vertical;min-height:100px;"></textarea>
+  </div>
+
+  <div style="display:flex;gap:10px;">
+    <button type="submit" style="flex:1;padding:12px;background:linear-gradient(135deg,#0072ff,#00c6ff);border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,114,255,0.4);">Send Feedback</button>
+    <button type="button" onclick="closeFeedback()" style="padding:12px 20px;background:#1a2233;border:1px solid #1e2d45;border-radius:8px;color:#5a7a9a;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+  </div>
+</form>
+
+<!-- Success message -->
+<div id="feedbackSuccess" style="display:none;text-align:center;padding:20px 0;">
+  <div style="font-size:40px;margin-bottom:12px;">✅</div>
+  <div style="font-size:16px;font-weight:700;color:#d8e4f0;margin-bottom:8px;">Thank you for your feedback!</div>
+  <div style="font-size:13px;color:#5a7a9a;margin-bottom:20px;">Your message has been sent to the WAN Lens team.</div>
+  <button onclick="closeFeedback()" style="padding:10px 24px;background:linear-gradient(135deg,#0072ff,#00c6ff);border:none;border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Close</button>
+</div>
+```
+
   </div>
 </div>
 
@@ -1011,40 +1036,20 @@ function handleFeedback(e){
   e.preventDefault();
   const form=e.target;
   const data=new FormData(form);
-  // Web3Forms API — free, no server needed, emails amuthana@abdullabs.com
-  fetch('https://api.web3forms.com/submit',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({
-      access_key:data.get('access_key'),
-      subject:'WAN Lens Feedback — '+data.get('type'),
-      from_name:'WAN Lens',
-      name:data.get('name')||'Anonymous',
-      email:data.get('email')||'not provided',
-      type:data.get('type'),
-      message:data.get('message'),
-      botcheck:data.get('botcheck')
-    })
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.success){
-      form.style.display='none';
-      document.getElementById('feedbackSuccess').style.display='block';
-    } else {
-      // Fallback to mailto
-      const msg=data.get('message')||'';
-      const type=data.get('type')||'';
-      window.location.href=`mailto:amuthana@abdullabs.com?subject=WAN Lens Feedback - ${type}&body=${encodeURIComponent(msg)}`;
-    }
+  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data).toString()})
+  .then(()=>{
+    form.style.display='none';
+    document.getElementById('feedbackSuccess').style.display='block';
   })
   .catch(()=>{
-    const msg=data.get('message')||'';
+    const name=data.get('name')||'';
     const type=data.get('type')||'';
-    window.location.href=`mailto:amuthana@abdullabs.com?subject=WAN Lens Feedback - ${type}&body=${encodeURIComponent(msg)}`;
+    const msg=data.get('message')||'';
+    window.location.href=`mailto:amuthana@abdullabs.com?subject=WAN Lens Feedback - ${type}&body=${encodeURIComponent(`Name: ${name}\n\nMessage:\n${msg}`)}`;
   });
 }
 document.getElementById('apiKey').addEventListener('keydown',e=>{if(e.key==='Enter')fetchOrganizations();});
 </script>
+
 </body>
 </html>
