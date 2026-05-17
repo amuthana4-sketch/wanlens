@@ -1,1 +1,3 @@
+name = "wanlens"
+pages_build_output_dir = "."
 
