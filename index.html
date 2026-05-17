@@ -416,7 +416,8 @@ footer a{color:var(–accent);text-decoration:none;}
             <th>Network</th>
             <th class="c-ha">Primary Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
             <th class="c-ha">Spare Device</th><th>Status</th><th class="c-fw">Model / Firmware</th><th class="c-ip1">WAN 1 IP</th>
-            <th style="color:var(--danger)!important">Split Brain</th><th>Firmware</th><th style="color:#d4a8ff">Virtual MAC</th>
+            <th style="color:var(--danger)!important">Split Brain</th><th>Firmware</th>
+          </tr></thead>
           </tr></thead>
           <tbody id="haTableBody"></tbody>
         </table>
@@ -865,7 +866,7 @@ function renderIspView(devices){
 function renderHaTable(pairs,devices){
   const tbody=document.getElementById('haTableBody');tbody.innerHTML='';
   const devBySerial={};devices.forEach(d=>devBySerial[d.serial]=d);
-  if(!pairs.length){tbody.innerHTML='<tr><td colspan="12"><div class="empty-state"><div class="icon">🔁</div>No HA pairs detected</div></td></tr>';document.getElementById('haStats').innerHTML='';return;}
+  if(!pairs.length){tbody.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="icon">🔁</div>No HA pairs detected</div></td></tr>';document.getElementById('haStats').innerHTML='';return;}
   let ok=0,modelMismatch=0,fwMismatch=0,spareOffline=0;
   pairs.forEach(pair=>{
     const pri=devBySerial[pair.primarySerial]||{};
@@ -897,15 +898,9 @@ function renderHaTable(pairs,devices){
     }else{
       splitBrainCell=`<td style="color:var(--muted);font-size:11px">—</td>`;
     }
-    // Virtual MAC calculation for HA routed mode
-    // Virtual MACs = base MAC of primary with offset +1 for each interface
-    const priMac=nMAC(pri.mac||'');
-    const virtualMac=priMac?addOff(priMac,1):null;
-
     const fwCell=fwMis?`<td style="color:var(--danger);font-family:var(--mono);font-size:11px">⚠ ${priFw}<br>≠ ${spaFw}</td>`:`<td style="color:var(--success);font-size:11px">✓ Match</td>`;
-    const virtualMacCell=virtualMac?`<td class="t-mac" style="color:#d4a8ff">${virtualMac}<span class="copy-c" onclick="copyText(this,'${virtualMac}')">⧉</span></td>`:`<td class="t-na">—</td>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${splitBrainCell}${fwCell}${virtualMacCell}`;
+    tr.innerHTML=`<td class="t-net">${networkMap[pair.networkId]||pair.networkId}</td><td class="t-name">${pri.name||pair.primarySerial}<span class="ha-badge">PRIMARY</span></td><td><span class="ddot ${priSt==='online'?'online':priSt==='offline'?'offline':'unknown'}"></span>${priSt}</td><td class="t-fw">${priModel}<br><span style="font-size:10px;color:var(--muted)">${priFw}</span></td><td class="t-ip1">${priWi.wan1Ip||'—'}</td><td class="t-name">${spa.name||pair.spareSerial}<span class="ha-badge">SPARE</span></td><td><span class="ddot ${spaSt==='online'?'online':spaSt==='offline'?'offline':'unknown'}"></span>${spaSt}</td><td class="t-fw">${spaModel}<br><span style="font-size:10px;color:var(--muted)">${spaFw}</span></td><td class="t-ip1">${spaWi.wan1Ip||'—'}</td>${splitBrainCell}${fwCell}`;
     tbody.appendChild(tr);
   });
   document.getElementById('haStats').innerHTML=`<div class="stat-chip"><strong>${pairs.length}</strong> HA Pairs</div><div class="stat-chip ok"><strong>${ok}</strong> Healthy</div>${modelMismatch?`<div class="stat-chip bad"><strong>${modelMismatch}</strong> Possible Split Brain</div>`:''}<div class="stat-chip bad"><strong>${fwMismatch}</strong> FW Mismatch</div><div class="stat-chip warn"><strong>${spareOffline}</strong> Spare Offline</div>`;
